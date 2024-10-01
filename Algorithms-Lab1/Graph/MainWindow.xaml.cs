@@ -21,7 +21,7 @@ namespace WpfApp
         private void ButtonСalculation_Click(object sender, RoutedEventArgs e)
         {
             int runs = 5; // Количество повторных запусков для усреднения времени
-            int[] sizes = Enumerable.Range(1, 100).Select(x => x * 100).ToArray(); // Размеры массивов от 100 до 10,000
+            int[] sizes = Enumerable.Range(1, 100).Select(x => x * 20).ToArray(); // Размеры массивов от 100 до 2000
             double[] times = new double[sizes.Length];
 
             // Запускаем замеры для QuickSort
