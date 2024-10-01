@@ -6,18 +6,24 @@
     <Grid>
         <lvc:CartesianChart Name="cartesianChart"/>
         <ComboBox x:Name="AlgorithmComboBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="200" Margin="10">
+            <!-- добавить позже?
             <ComboBoxItem Content="Функция константы" />
             <ComboBoxItem Content="Сумма элементов" />
             <ComboBoxItem Content="Произведение элементов" />
             <ComboBoxItem Content="Полином (Наивный)" />
             <ComboBoxItem Content="Полином (Горнер)" />
+            <ComboBoxItem Content="Matrix Multiplication" />
+            -->
             <ComboBoxItem Content="Bubble Sort" />
-            <ComboBoxItem Content="Insertion Sort"/>
+            <ComboBoxItem Content="Exchenge Sort"/>
+            <ComboBoxItem Content="ISorter"/>
             <ComboBoxItem Content="Quick Sort"/>
             <ComboBoxItem Content="TimSort" />
-            <ComboBoxItem Content="Matrix Multiplication" />
+            <!-- Добавить алгоритмы каждого из команды --> 
             <ComboBoxItem Content="ShellSort" />
         </ComboBox>
         <Button Name="ButtonСalculation" Click="ButtonСalculation_Click" Content="Начать расчет" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="150" Height="20" Margin="10"></Button>
+        <!-- Добавляем поле для ввода количества запусков -->
+        <TextBox Text="Количество запусков:" x:Name="RunsTextBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200"  />
     </Grid>
 </Window>
