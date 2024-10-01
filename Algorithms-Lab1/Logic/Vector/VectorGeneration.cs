@@ -6,7 +6,7 @@ namespace MyLibrary.Logic.Vector
     {
         private static readonly Random rand = new Random();
         
-        public int[] GenerateRandomVector(int n, int minValue = 1, int maxValue = 2000)
+        public static int[] GenerateRandomVector(int n, int minValue = 1, int maxValue = 2000)
         {
             if (n <= 0)
                 throw new ArgumentException("Размер вектора должен быть положительным числом.", nameof(n));

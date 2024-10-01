@@ -4,7 +4,16 @@
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         Title="LiveCharts Example" Height="350" Width="525">
     <Grid>
-        <lvc:CartesianChart Name="cartesianChart"/>
+        <lvc:CartesianChart x:Name="MyChart" 
+                            LegendLocation="Right" 
+                            Margin="0,60,0,0">
+            <lvc:CartesianChart.AxisX>
+                <lvc:Axis Title="Размер массива"/>
+            </lvc:CartesianChart.AxisX>
+            <lvc:CartesianChart.AxisY>
+                <lvc:Axis Title="Время выполнения (мс)"/>
+            </lvc:CartesianChart.AxisY>
+        </lvc:CartesianChart>
         <ComboBox x:Name="AlgorithmComboBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="200" Margin="10">
             <!-- добавить позже?
             <ComboBoxItem Content="Функция константы" />
