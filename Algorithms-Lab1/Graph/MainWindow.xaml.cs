@@ -47,5 +47,10 @@ namespace WpfApp
                 }
             };
         }
+
+        private void ButtonСalculation_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Кнопка нажата!");
+        }
     }
 }
