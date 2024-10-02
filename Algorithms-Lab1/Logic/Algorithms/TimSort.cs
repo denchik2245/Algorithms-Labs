@@ -1,5 +1,4 @@
-﻿using System;
-using MyVectorLibrary.Sorters;
+﻿using MyVectorLibrary.Sorters;
 
 namespace MyLibrary.Logic.Algorithms
 {

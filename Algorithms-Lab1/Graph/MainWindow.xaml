@@ -1,1 +1,38 @@
-﻿
+﻿﻿<Window x:Class="WpfApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        Title="LiveCharts Example" Height="350" Width="525">
+    <Grid>
+        <lvc:CartesianChart x:Name="MyChart" 
+                            LegendLocation="Right" 
+                            Margin="0,60,0,0">
+            <lvc:CartesianChart.AxisX>
+                <lvc:Axis Title="Размер массива"/>
+            </lvc:CartesianChart.AxisX>
+            <lvc:CartesianChart.AxisY>
+                <lvc:Axis Title="Время выполнения (мс)"/>
+            </lvc:CartesianChart.AxisY>
+        </lvc:CartesianChart>
+        <ComboBox x:Name="AlgorithmComboBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="200" Margin="10">
+            <!-- добавить позже?
+            <ComboBoxItem Content="Функция константы" />
+            <ComboBoxItem Content="Сумма элементов" />
+            <ComboBoxItem Content="Произведение элементов" />
+            <ComboBoxItem Content="Полином (Наивный)" />
+            <ComboBoxItem Content="Полином (Горнер)" />
+            <ComboBoxItem Content="Matrix Multiplication" />
+            -->
+            <ComboBoxItem Content="Bubble Sort" />
+            <ComboBoxItem Content="Exchenge Sort"/>
+            <ComboBoxItem Content="ISorter"/>
+            <ComboBoxItem Content="Quick Sort"/>
+            <ComboBoxItem Content="TimSort" />
+            <!-- Добавить алгоритмы каждого из команды --> 
+            <ComboBoxItem Content="ShellSort" />
+        </ComboBox>
+        <Button Name="ButtonСalculation" Click="ButtonСalculation_Click" Content="Начать расчет" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="150" Height="20" Margin="10"></Button>
+        <!-- Добавляем поле для ввода количества запусков -->
+        <TextBox Text="Количество запусков:" x:Name="RunsTextBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200"  />
+    </Grid>
+</Window>
