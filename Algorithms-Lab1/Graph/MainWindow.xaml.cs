@@ -1,4 +1,4 @@
-﻿﻿using System.Diagnostics;
+﻿using System.Diagnostics;
 using LiveCharts;
 using LiveCharts.Wpf;
 using System.Windows;
