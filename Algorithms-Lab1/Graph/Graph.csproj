@@ -17,4 +17,9 @@
       <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="Resources\Fonts\Montserrat-Regular.ttf" />
+      <None Remove="Resources\Fonts\Unbounded-SemiBold.ttf" />
+    </ItemGroup>
+
 </Project>

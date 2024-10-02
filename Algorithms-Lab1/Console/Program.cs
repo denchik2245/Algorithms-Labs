@@ -1,77 +1,90 @@
-﻿using System;
-using MyVectorLibrary;
+﻿using System.Diagnostics;
+using System.Reflection;
+using MyVectorLibrary.Sorters;
 
-namespace MyConsoleApp
+namespace ConsoleApp
 {
     class Program
     {
         static void Main(string[] args)
         {
-            int n = 10; // Размер вектора
-            double x = 1.5; // Значение x для многочлена
+            Type[] availableAlgorithms = GetAllAlgorithms();
+            Console.WriteLine("Нажмите номер соответствующий алгоритму который вы хотите выполнить:");
 
-            // Генерация случайного вектора
-            int[] v = Logic.GenerateRandomVector(n);
-
-            Console.WriteLine("Исходный вектор:");
-            foreach (var value in v)
+            for (int i = 0; i < availableAlgorithms.Length; i++)
             {
-                Console.Write($"{value} ");
+                Console.WriteLine($"{i + 1}. {availableAlgorithms[i].Name}");
             }
-            Console.WriteLine();
 
-            // Использование постоянной функции
-            int constant = Logic.ConstantFunction();
-            Console.WriteLine($"\nПостоянная функция возвращает: {constant}");
-
-            // Вычисление суммы элементов
-            int sum = Logic.SumElements(v);
-            Console.WriteLine($"Сумма элементов: {sum}");
-
-            // Вычисление произведения элементов
-            long product = Logic.ProductElements(v);
-            Console.WriteLine($"Произведение элементов: {product}");
-
-            // Вычисление многочлена прямым методом
-            double polynomialDirect = Logic.EvaluatePolynomialDirect(v, x);
-            Console.WriteLine($"Многочлен (прямой метод) при x = {x}: {polynomialDirect}");
-
-            // Вычисление многочлена методом Горнера
-            double polynomialHorner = Logic.EvaluatePolynomialHorner(v, x);
-            Console.WriteLine($"Многочлен (метод Горнера) при x = {x}: {polynomialHorner}");
-
-            // Сортировка пузырьком
-            int[] bubbleSorted = (int[])v.Clone();
-            Logic.BubbleSort(bubbleSorted);
-            Console.WriteLine("\nВектор после пузырьковой сортировки:");
-            foreach (var value in bubbleSorted)
+            if (int.TryParse(Console.ReadLine(), out int algorithmChoice) && algorithmChoice >= 1 && algorithmChoice <= availableAlgorithms.Length)
             {
-                Console.Write($"{value} ");
+                Type chosenAlgorithm = availableAlgorithms[algorithmChoice - 1];
+                Console.WriteLine($"Вы выбрали: {chosenAlgorithm.Name}");
+                ExecuteTests(chosenAlgorithm);
             }
-            Console.WriteLine();
-
-            // Быстрая сортировка
-            int[] quickSorted = (int[])v.Clone();
-            Logic.QuickSort(quickSorted);
-            Console.WriteLine("\nВектор после быстрой сортировки:");
-            foreach (var value in quickSorted)
+            else
             {
-                Console.Write($"{value} ");
+                Console.WriteLine("Неверный выбор алгоритма.");
             }
-            Console.WriteLine();
+        }
 
-            // Гибридная сортировка (Timsort)
-            int[] timSorted = (int[])v.Clone();
-            Logic.TimSort(timSorted);
-            Console.WriteLine("\nВектор после гибридной сортировки:");
-            foreach (var value in timSorted)
+        static Type[] GetAllAlgorithms()
+        {
+            var algorithms = GetTypesFromNamespace("MyLibrary.Logic.Algorithms");
+            var operations = GetTypesFromNamespace("MyLibrary.Logic.Operation");
+            return algorithms.Concat(operations).ToArray();
+        }
+
+        static Type[] GetTypesFromNamespace(string @namespace)
+        {
+            return Assembly.GetAssembly(typeof(ISorter))
+                           .GetTypes()
+                           .Where(t => t.Namespace == @namespace && !t.IsInterface && !t.IsAbstract)
+                           .ToArray();
+        }
+
+        static void ExecuteTests(Type algorithmType)
+        {
+            Console.WriteLine("Введите количество тестов (от 5 до 20):");
+            if (int.TryParse(Console.ReadLine(), out int testCount) && testCount >= 5 && testCount <= 20)
             {
-                Console.Write($"{value} ");
-            }
-            Console.WriteLine();
+                object algorithmInstance = Activator.CreateInstance(algorithmType);
+                MethodInfo methodToTest = algorithmType.GetMethod("Sort") ?? algorithmType.GetMethod("Calculate");
 
-            Console.WriteLine("\nНажмите любую клавишу для выхода...");
-            Console.ReadKey();
+                if (methodToTest == null)
+                {
+                    Console.WriteLine("Метод для выполнения не найден.");
+                    return;
+                }
+
+                double totalTime = 0;
+                for (int i = 1; i <= testCount; i++)
+                {
+                    var randomVector = GenerateRandomVector(1000);
+                    var stopwatch = Stopwatch.StartNew();
+
+                    methodToTest.Invoke(algorithmInstance, new object[] { randomVector });
+
+                    stopwatch.Stop();
+                    double elapsedSeconds = stopwatch.Elapsed.TotalSeconds;
+                    totalTime += elapsedSeconds;
+
+                    Console.WriteLine($"Тест {i}: {elapsedSeconds:F5} сек");
+                }
+
+                double averageTime = totalTime / testCount;
+                Console.WriteLine($"Среднее время выполнения: {averageTime:F5} сек");
+            }
+            else
+            {
+                Console.WriteLine("Некорректное количество тестов.");
+            }
+        }
+
+        static int[] GenerateRandomVector(int n)
+        {
+            Random rand = new Random();
+            return Enumerable.Range(0, n).Select(_ => rand.Next(1, 100)).ToArray();
         }
     }
 }
