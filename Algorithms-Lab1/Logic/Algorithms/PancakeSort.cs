@@ -2,31 +2,23 @@
 
 namespace MyLibrary.Logic.Algorithms
 {
-    public class Timsort : ISorter
+    public class PancakeSort : ISorter
     {
         public void Sort(int[] array)
         {
-            int n = array.Length;
-            for (int i = 0; i < n; i += RUN)
+            for (int currIndex = array.Length - 1; currIndex > 0; currIndex--)
             {
-                InsertionSort(array, i, Math.Min((i + 31), (n - 1)));
-            }
+                int maxValueIndex = FindMaxValueIndex(array, currIndex);
             
-            for (int size = RUN; size < n; size = 2 * size)
+                if (maxValueIndex != currIndex)
             {
-                for (int left = 0; left < n; left += 2 * size)
-                {
-                    int mid = left + size - 1;
-                    int right = Math.Min((left + 2 * size - 1), (n - 1));
-                    
-                    if (mid < right)
-                    {
-                        Merge(array, left, mid, right);
+                    Flip(array, maxValueIndex);
+                    Flip(array, currIndex);
                     }
                 }
             }
         
-        private void InsertionSort(int[] array, int left, int right)
+        private static int FindMaxValueIndex(int[] array, int index)
         {
             int maxIndex = 0;
             for (int i = 1; i <= index; i++)
