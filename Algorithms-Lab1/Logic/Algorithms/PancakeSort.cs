@@ -4,8 +4,6 @@ namespace MyLibrary.Logic.Algorithms
 {
     public class Timsort : ISorter
     {
-        private const int RUN = 32;
-
         public void Sort(int[] array)
         {
             int n = array.Length;
@@ -27,64 +25,32 @@ namespace MyLibrary.Logic.Algorithms
                     }
                 }
             }
-        }
         
         private void InsertionSort(int[] array, int left, int right)
         {
-            for (int i = left + 1; i <= right; i++)
+            int maxIndex = 0;
+            for (int i = 1; i <= index; i++)
             {
-                int temp = array[i];
-                int j = i - 1;
-
-                while (j >= left && array[j] > temp)
+                if (array[i] > array[maxIndex])
                 {
-                    array[j + 1] = array[j];
-                    j--;
+                    maxIndex = i;
                 }
-                array[j + 1] = temp;
             }
+            return maxIndex;
         }
         
-        private void Merge(int[] array, int left, int mid, int right)
-        {
-            int len1 = mid - left + 1, len2 = right - mid;
-            int[] leftArray = new int[len1];
-            int[] rightArray = new int[len2];
-
-            for (int i = 0; i < len1; i++)
-                leftArray[i] = array[left + i];
-            for (int i = 0; i < len2; i++)
-                rightArray[i] = array[mid + 1 + i];
-
-            int iLeft = 0, iRight = 0, k = left;
-
-            while (iLeft < len1 && iRight < len2)
-            {
-                if (leftArray[iLeft] <= rightArray[iRight])
+        private static void Flip(int[] array, int index)
                 {
-                    array[k] = leftArray[iLeft];
-                    iLeft++;
-                }
-                else
-                {
-                    array[k] = rightArray[iRight];
-                    iRight++;
-                }
-                k++;
-            }
-
-            while (iLeft < len1)
+            int start = 0;
+            while (start < index)
             {
-                array[k] = leftArray[iLeft];
-                iLeft++;
-                k++;
-            }
+                // Swap elements
+                int temp = array[start];
+                array[start] = array[index];
+                array[index] = temp;
 
-            while (iRight < len2)
-            {
-                array[k] = rightArray[iRight];
-                iRight++;
-                k++;
+                index--;
+                start++;
             }
         }
     }
