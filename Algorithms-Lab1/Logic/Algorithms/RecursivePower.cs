@@ -18,7 +18,7 @@ namespace Logic.Algorithms
             }
         }
 
-        static int Power(int baseValue, int power)
+        private static int Power(int baseValue, int power)
         {
             // Базовый случай
             if (power == 0)
