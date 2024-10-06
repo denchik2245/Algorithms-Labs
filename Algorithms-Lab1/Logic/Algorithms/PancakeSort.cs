@@ -9,15 +9,15 @@ namespace MyLibrary.Logic.Algorithms
             for (int currIndex = array.Length - 1; currIndex > 0; currIndex--)
             {
                 int maxValueIndex = FindMaxValueIndex(array, currIndex);
-            
+
                 if (maxValueIndex != currIndex)
-            {
+                {
                     Flip(array, maxValueIndex);
                     Flip(array, currIndex);
-                    }
                 }
             }
-        
+        }
+
         private static int FindMaxValueIndex(int[] array, int index)
         {
             int maxIndex = 0;
@@ -30,9 +30,9 @@ namespace MyLibrary.Logic.Algorithms
             }
             return maxIndex;
         }
-        
+
         private static void Flip(int[] array, int index)
-                {
+        {
             int start = 0;
             while (start < index)
             {
