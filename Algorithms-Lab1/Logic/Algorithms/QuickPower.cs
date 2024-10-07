@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Logic.Algorithms
 {
-    public class RecursivePower : IPowerRaiser
+    public class QuickPower : IPowerRaiser
     {
         public void RaiseToPower(int[] array, int power)
         {
@@ -18,15 +18,20 @@ namespace Logic.Algorithms
             }
         }
 
-        private static int CalculatePower(int baseValue, int power)
+        private static int CalculatePower(int num, int power)
         {
-            if (power == 0)
-                return 1;
-            int result = CalculatePower(baseValue, power / 2);
-            if (power % 2 == 1)
-                result = result * result * baseValue;
-            else
-                result = result * baseValue;
+            int result = 1;
+            if ((power % 2) == 1)
+                result = num;
+            while (power > 0)
+            {
+                power /= 2; // Делим power на 2
+                num *= num; // Возводим num в квадрат
+                if ((power %2) == 1)
+                { // Если power нечётное
+                    result *= num;
+                }
+            }
             return result;
         }
     }
