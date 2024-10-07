@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Logic.Algorithms
 {
-    public class BinaryPower : IPowerRaiser
+    public class QuickPower : IPowerRaiser
     {
         public void RaiseToPower(int[] array, int power)
         {
@@ -14,21 +14,23 @@ namespace Logic.Algorithms
 
             for (int i = 0; i < array.Length; i++)
             {
-                array[i] = BinPower(array[i], power);
+                array[i] = CalculatePower(array[i], power);
             }
         }
 
-        private static int BinPower(int num, int power)
+        private static int CalculatePower(int num, int power)
         {
             int result = 1;
+            if ((power % 2) == 1)
+                result = num;
             while (power > 0)
             {
-                if ((power & 1) == 1)
+                power /= 2; // Делим power на 2
+                num *= num; // Возводим num в квадрат
+                if ((power %2) == 1)
                 { // Если power нечётное
                     result *= num;
                 }
-                num *= num; // Возводим num в квадрат
-                power >>= 1; // Делим power на 2
             }
             return result;
         }
