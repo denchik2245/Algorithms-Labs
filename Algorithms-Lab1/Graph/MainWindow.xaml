@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
-        Title="LiveCharts Example" Height="350" Width="525">
+        Title="LiveCharts Example" Height="800" Width="1500">
     <Grid>
         <lvc:CartesianChart x:Name="MyChart" 
                             LegendLocation="Right" 
@@ -14,25 +14,50 @@
                 <lvc:Axis Title="Время выполнения (мс)"/>
             </lvc:CartesianChart.AxisY>
         </lvc:CartesianChart>
-        <ComboBox x:Name="AlgorithmComboBox" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="200" Margin="10">
-            <!-- добавить позже?
-            <ComboBoxItem Content="Функция константы" />
-            <ComboBoxItem Content="Сумма элементов" />
-            <ComboBoxItem Content="Произведение элементов" />
-            <ComboBoxItem Content="Полином (Наивный)" />
-            <ComboBoxItem Content="Полином (Горнер)" />
-            <ComboBoxItem Content="Matrix Multiplication" />
-            -->
-            <ComboBoxItem Content="Bubble Sort" />
-            <ComboBoxItem Content="Exchenge Sort"/>
-            <ComboBoxItem Content="ISorter"/>
-            <ComboBoxItem Content="Quick Sort"/>
-            <ComboBoxItem Content="TimSort" />
-            <!-- Добавить алгоритмы каждого из команды --> 
-            <ComboBoxItem Content="ShellSort" />
+        
+        <!-- Выпадающее меню выбора типа алгоритма -->
+        <ComboBox x:Name="AlgorithmTypeComboBox" 
+                  HorizontalAlignment="Left" 
+                  VerticalAlignment="Top" 
+                  Width="200" 
+                  Margin="10,10,0,0"
+                  SelectionChanged="AlgorithmTypeComboBox_SelectionChanged">
+            <ComboBoxItem Content="Сортировка" />
+            <ComboBoxItem Content="Математические операции" />
+            <ComboBoxItem Content="Матричные операции" />
+            <ComboBoxItem Content="Возведение в степень" />
+            <ComboBoxItem Content="Полиномы" />
         </ComboBox>
-        <Button Name="ButtonСalculation" Click="ButtonСalculation_Click" Content="Начать расчет" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="150" Height="20" Margin="10"></Button>
-        <!-- Добавляем поле для ввода количества запусков -->
-        <TextBox Text="Количество запусков:" x:Name="RunsTextBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200"  />
+        
+        <!-- Выпадающее меню выбора алгоритма в зависимости от типа -->
+        <ComboBox x:Name="AlgorithmComboBox" 
+                  HorizontalAlignment="Left" 
+                  VerticalAlignment="Top" 
+                  Width="200" 
+                  Margin="10,50,0,0">
+        </ComboBox>
+        
+        <Button Name="ButtonСalculation" 
+                Click="ButtonСalculation_Click" 
+                Content="Начать расчет" 
+                HorizontalAlignment="Right" 
+                VerticalAlignment="Bottom" 
+                Width="150" 
+                Height="30" 
+                Margin="10"/>
+        
+        <!-- Поле для ввода количества запусков -->
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,10,10,0">
+            <TextBlock Text="Количество запусков:" />
+            <TextBox x:Name="RunsTextBox" Width="150" Text="5" />
+            
+            <!-- Поле для ввода максимального количества элементов -->
+            <TextBlock Text="Максимальное количество элементов:" Margin="0,10,0,0" />
+            <TextBox x:Name="MaxElementsTextBox" Width="150" Text="2000" />
+            
+            <!-- Поле для ввода шага увеличения данных -->
+            <TextBlock Text="Шаг увеличения данных:" Margin="0,10,0,0" />
+            <TextBox x:Name="StepIncrementTextBox" Width="150" Text="20" />
+        </StackPanel>
     </Grid>
 </Window>
