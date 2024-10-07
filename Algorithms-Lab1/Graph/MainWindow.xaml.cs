@@ -160,10 +160,8 @@ namespace WpfApp
                 for (int i = 0; i < exponents.Length; i++)
                 {
                     int exponent = exponents[i];
-
-                    // Применяем алгоритм возведения в степень и подсчитываем шаги
-                    int[] array = VectorGenerator.GenerateRandomVector(1); // Вектор с 1 элементом
-                    steps[i] = powerAlgorithmWithSteps(array, exponent); // Сохраняем количество шагов
+                    int[] array = VectorGenerator.GenerateRandomVector(1);
+                    steps[i] = powerAlgorithmWithSteps(array, exponent);
                 }
 
                 PlotGraph(exponents, steps, "Количество шагов", "Степень");
@@ -224,6 +222,20 @@ namespace WpfApp
                     int steps;
                     new RecursivePower().RaiseToPower(array, power);
                     RecursivePower.Power(array[0], power, out steps);
+                    return steps;
+                },
+                "Быстрое возведение" => (array, power) =>
+                {
+                    int steps = 0;
+                    new QuickPower().RaiseToPower(array, power);
+                    QuickPower.CalculatePower(array[0], power, ref steps);
+                    return steps;
+                },
+                "Классическое быстрое возведение" => (array, power) =>
+                {
+                    int steps = 0;
+                    new QuickPowerClassic().RaiseToPower(array, power);
+                    QuickPowerClassic.CalculatePowerWithSteps(array[0], power, ref steps);
                     return steps;
                 },
                 _ => null
