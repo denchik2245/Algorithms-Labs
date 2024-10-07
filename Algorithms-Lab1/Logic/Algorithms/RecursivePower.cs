@@ -14,33 +14,30 @@ namespace Logic.Algorithms
 
             for (int i = 0; i < array.Length; i++)
             {
-                array[i] = Power(array[i], power, out _);  // Выполняем возведение без учета шагов здесь
+                array[i] = Power(array[i], power, out _);
             }
         }
 
         public static int Power(int baseValue, int power, out int steps)
         {
-            steps = 0;  // Инициализируем счетчик шагов
+            steps = 0;
+            int result = 1;
 
-            if (power == 0)
-                return 1;
-
-            steps++; // Каждый вызов рекурсии - это шаг
-
-            if (power % 2 == 0)
+            while (power > 0)
             {
-                // Если степень четная, разбиваем пополам
-                int halfPower = Power(baseValue, power / 2, out int recursiveSteps);
-                steps += recursiveSteps; // Увеличиваем шаги на каждый рекурсивный вызов
-                return halfPower * halfPower;
+                steps++;
+
+                if (power % 2 == 1)
+                {
+                    result *= baseValue;
+                }
+
+                baseValue *= baseValue;
+                power /= 2;
             }
-            else
-            {
-                // Если степень нечетная, вычитаем 1 и продолжаем
-                int reducedPower = Power(baseValue, power - 1, out int recursiveSteps);
-                steps += recursiveSteps; // Увеличиваем шаги на каждый рекурсивный вызов
-                return baseValue * reducedPower;
-            }
+
+            return result;
         }
+
     }
 }
