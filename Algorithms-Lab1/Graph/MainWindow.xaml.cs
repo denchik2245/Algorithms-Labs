@@ -82,8 +82,7 @@ namespace WpfApp
                 {
                     RunsTextBlock.Text = "Кол-во запусков";
                     StepIncrementTextBlock.Text = "Шаг увеличения данных";
-
-                    // Показываем поле "Макс. кол-во элементов" обратно для других алгоритмов
+                    
                     MaxElementsTextBlock.Visibility = Visibility.Visible;
                     MaxElementsTextBox.Visibility = Visibility.Visible;
                 }
