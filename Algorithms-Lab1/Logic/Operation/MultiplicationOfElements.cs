@@ -1,10 +1,21 @@
-﻿namespace MyLibrary.Logic.Operation
+﻿using System.Numerics;
+
+namespace MyLibrary.Logic.Operation
 {
     public class MultiplicationOfElements
     {
-        public int Calculate(int[] vector)
+        public BigInteger Calculate(int[] vector)
         {
-            return vector.Aggregate(1, (acc, val) => acc * val);
+            if (vector == null || vector.Length == 0)
+                throw new ArgumentException("Массив не должен быть пустым.", nameof(vector));
+
+            BigInteger result = 1;
+            foreach (int val in vector)
+            {
+                result *= val;
+            }
+            return result;
         }
     }
+
 }
