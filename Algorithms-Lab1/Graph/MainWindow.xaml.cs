@@ -11,6 +11,7 @@ using MyLibrary.Logic.Algorithms;
 using MyLibrary.Logic.Operation;
 using MyVectorLibrary.Sorters;
 using MathNet.Numerics;
+using MyLibrary.Logic.Matrix;
 
 namespace WpfApp
 {
@@ -81,8 +82,7 @@ namespace WpfApp
                 {
                     RunsTextBlock.Text = "Кол-во запусков";
                     StepIncrementTextBlock.Text = "Шаг увеличения данных";
-
-                    // Показываем поле "Макс. кол-во элементов" обратно для других алгоритмов
+                    
                     MaxElementsTextBlock.Visibility = Visibility.Visible;
                     MaxElementsTextBox.Visibility = Visibility.Visible;
                 }
@@ -92,8 +92,8 @@ namespace WpfApp
         // Обработчик кнопки расчета
         private void ButtonСalculation_Click(object sender, RoutedEventArgs e)
         {
-            if (AlgorithmComboBox.SelectedItem == null || 
-                !int.TryParse(RunsTextBox.Text, out int maxExponent) || maxExponent <= 0 || 
+            if (AlgorithmComboBox.SelectedItem == null ||
+                !int.TryParse(RunsTextBox.Text, out int runs) || runs <= 0 ||
                 !int.TryParse(StepIncrementTextBox.Text, out int stepIncrement) || stepIncrement <= 0)
             {
                 MessageBox.Show("Пожалуйста, введите корректные данные.");
@@ -103,15 +103,54 @@ namespace WpfApp
             string selectedAlgorithmType = (AlgorithmTypeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
             string selectedAlgorithm = AlgorithmComboBox.SelectedItem.ToString();
 
-            if (selectedAlgorithmType == "Возведение в степень")
+            if (selectedAlgorithmType == "Матричные операции" && selectedAlgorithm == "Умножение матриц")
             {
-                // Для возведения в степень: генерируем степени с шагом и считаем шаги
+                if (!int.TryParse(MaxElementsTextBox.Text, out int maxSize) || maxSize <= 0)
+                {
+                    MessageBox.Show("Пожалуйста, введите корректные данные.");
+                    return;
+                }
+
+                int[] sizes = Enumerable.Range(1, maxSize / stepIncrement).Select(x => x * stepIncrement).ToArray();
+                double[] times = new double[sizes.Length];
+
+                for (int i = 0; i < sizes.Length; i++)
+                {
+                    int size = sizes[i];
+                    double totalTime = 0;
+
+                    for (int run = 0; run < runs; run++)
+                    {
+                        int[,] matrixA = MatrixGenerator.GenerateRandomSquareMatrix(size, 0, 10);
+                        int[,] matrixB = MatrixGenerator.GenerateRandomSquareMatrix(size, 0, 10);
+
+                        Stopwatch stopwatch = Stopwatch.StartNew();
+                        MatrixGenerator.OptimizedMultiplyMatrices(matrixA, matrixB);
+                        stopwatch.Stop();
+
+                        totalTime += stopwatch.Elapsed.TotalMilliseconds;
+                    }
+
+                    times[i] = totalTime / runs;
+                }
+
+                PlotGraph(sizes, times, "Время выполнения (мс)", "Размер матрицы (N x N)");
+            }
+            else if (selectedAlgorithmType == "Возведение в степень")
+            {
+                // Генерация степеней от 1 до maxExponent с шагом stepIncrement
+                if (!int.TryParse(RunsTextBox.Text, out int maxExponent) || maxExponent <= 0)
+                {
+                    MessageBox.Show("Пожалуйста, введите корректные данные.");
+                    return;
+                }
+
                 int[] exponents = Enumerable.Range(1, maxExponent / stepIncrement).Select(i => i * stepIncrement).ToArray();
                 double[] steps = new double[exponents.Length];
 
-                Action<int[], int> powerAlgorithm = GetPowerAlgorithmAction(selectedAlgorithm);
+                Func<int[], int, int> powerAlgorithmWithSteps = GetPowerAlgorithmActionWithSteps(selectedAlgorithm);
 
-                if (powerAlgorithm == null)
+                if (powerAlgorithmWithSteps == null)
                 {
                     MessageBox.Show("Данный алгоритм еще не реализован.");
                     return;
@@ -120,21 +159,16 @@ namespace WpfApp
                 for (int i = 0; i < exponents.Length; i++)
                 {
                     int exponent = exponents[i];
-                    double totalSteps = 0;
-
-                    // Простое возведение требует exponent шагов умножения
-                    totalSteps = exponent;
-
-                    steps[i] = totalSteps; // Количество шагов равно степени
+                    int[] array = VectorGenerator.GenerateRandomVector(1);
+                    steps[i] = powerAlgorithmWithSteps(array, exponent);
                 }
 
                 PlotGraph(exponents, steps, "Количество шагов", "Степень");
             }
             else
             {
-                // Для остальных алгоритмов продолжаем работать с временем выполнения
-                if (!int.TryParse(MaxElementsTextBox.Text, out int maxElements) || maxElements <= 0 || 
-                    !int.TryParse(RunsTextBox.Text, out int runs) || runs <= 0)
+                // Для остальных алгоритмов (сортировка и т.д.)
+                if (!int.TryParse(MaxElementsTextBox.Text, out int maxElements) || maxElements <= 0)
                 {
                     MessageBox.Show("Пожалуйста, введите корректные данные.");
                     return;
@@ -174,13 +208,35 @@ namespace WpfApp
         }
 
 
-
-        private Action<int[], int> GetPowerAlgorithmAction(string selectedAlgorithm)
+        private Func<int[], int, int> GetPowerAlgorithmActionWithSteps(string selectedAlgorithm)
         {
             return selectedAlgorithm switch
             {
-                "Простое возведение" => (array, power) => new NaivePower().RaiseToPower(array, power),
-                // Добавить другие алгоритмы возведения в степень, если нужно
+                "Простое возведение" => (array, power) =>
+                {
+                    return power;
+                },
+                "Рекурсивное возведение" => (array, power) =>
+                {
+                    int steps;
+                    new RecursivePower().RaiseToPower(array, power);
+                    RecursivePower.Power(array[0], power, out steps);
+                    return steps;
+                },
+                "Быстрое возведение" => (array, power) =>
+                {
+                    int steps = 0;
+                    new QuickPower().RaiseToPower(array, power);
+                    QuickPower.CalculatePower(array[0], power, ref steps);
+                    return steps;
+                },
+                "Классическое быстрое возведение" => (array, power) =>
+                {
+                    int steps = 0;
+                    new QuickPowerClassic().RaiseToPower(array, power);
+                    QuickPowerClassic.CalculatePowerWithSteps(array[0], power, ref steps);
+                    return steps;
+                },
                 _ => null
             };
         }
@@ -268,7 +324,5 @@ namespace WpfApp
             MyChart.Zoom = ZoomingOptions.Xy;
             MyChart.AnimationsSpeed = TimeSpan.FromMilliseconds(200);
         }
-
-
     }
 }

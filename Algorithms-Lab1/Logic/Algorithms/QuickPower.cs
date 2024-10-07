@@ -14,25 +14,30 @@ namespace Logic.Algorithms
 
             for (int i = 0; i < array.Length; i++)
             {
-                array[i] = CalculatePower(array[i], power);
+                int steps = 0;  // Явно объявляем переменную steps
+                array[i] = CalculatePower(array[i], power, ref steps);
             }
         }
 
-        private static int CalculatePower(int num, int power)
+        public static int CalculatePower(int num, int power, ref int steps)
         {
+            steps = 0;
             int result = 1;
-            if ((power % 2) == 1)
-                result = num;
+
             while (power > 0)
             {
-                power /= 2; // Делим power на 2
-                num *= num; // Возводим num в квадрат
-                if ((power %2) == 1)
-                { // Если power нечётное
+                steps++; // Увеличиваем шаг
+
+                if ((power % 2) == 1)
+                {
                     result *= num;
                 }
+
+                power /= 2;
+                num *= num;
             }
             return result;
         }
     }
+
 }

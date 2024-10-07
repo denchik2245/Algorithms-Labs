@@ -12,24 +12,37 @@ namespace Logic.Algorithms
         {
             if (power < 0) throw new ArgumentException("Степень должна быть неотрицательным числом");
 
+            int totalSteps = 0;
             for (int i = 0; i < array.Length; i++)
             {
-                array[i] = CalculatePower(array[i], power);
+                int steps = 0;
+                array[i] = CalculatePowerWithSteps(array[i], power, ref steps);
+                totalSteps += steps;
             }
         }
 
-        private static int CalculatePower(int num, int power)
+        public static int CalculatePowerWithSteps(int num, int power, ref int steps)
         {
-            if (power == 0) return 1; // База рекурсии
-            if ((power % 2) == 0) // Проверка на четность
+            int result = 1;
+            int baseValue = num;
+
+            while (power > 0)
             {
-                int result = CalculatePower(num, power / 2); // Делим степень на 2
-                return result * result; // Возвращаем квадрат
+                steps++; // Увеличиваем количество шагов
+
+                if (power % 2 == 1) // Нечетная степень
+                {
+                    result *= baseValue; // Умножаем результат на базу
+                    power--; // Уменьшаем степень на 1
+                }
+                else
+                {
+                    baseValue *= baseValue; // Возводим базу в квадрат
+                    power /= 2; // Делим степень на 2
+                }
             }
-            else
-            {
-                return num * CalculatePower(num, power - 1); // Нечетная степень
-            }
+
+            return result;
         }
     }
 }

@@ -8,6 +8,6 @@ namespace MyLibrary.Logic.Matrix
 {
     public interface IMatrixGenerator
     {
-        static abstract int[,] GenerateRandomMatrix(int n, int minvalue, int maxvalue);
+        static abstract int[,] GenerateRandomSquareMatrix(int size, int minvalue, int maxvalue);
     }
 }
