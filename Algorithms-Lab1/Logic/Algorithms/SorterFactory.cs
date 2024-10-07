@@ -1,5 +1,4 @@
-﻿using System;
-using MyVectorLibrary.Sorters;
+﻿using MyVectorLibrary.Sorters;
 
 namespace MyLibrary.Logic.Algorithms
 {
@@ -26,3 +25,4 @@ namespace MyLibrary.Logic.Algorithms
         ExchangeSort
     }
 }
+

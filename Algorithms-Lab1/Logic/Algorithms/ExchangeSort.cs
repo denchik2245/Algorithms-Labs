@@ -22,3 +22,4 @@ namespace MyLibrary.Logic.Algorithms
         }
     }
 }
+

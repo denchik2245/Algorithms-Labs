@@ -1,9 +1,5 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Reflection;
-using MyLibrary.Logic.Algorithms;
-using MyLibrary.Logic.Operation;
 using MyVectorLibrary.Sorters;
 
 namespace ConsoleApp
@@ -35,7 +31,7 @@ namespace ConsoleApp
         static Type[] GetAllAlgorithms()
         {
             var algorithms = GetTypesFromNamespace("MyLibrary.Logic.Algorithms");
-            var operations = GetTypesFromNamespace("MyLibrary.Logic.Operation"); // Исправлено на Operation
+            var operations = GetTypesFromNamespace("MyLibrary.Logic.Operation");
             return algorithms.Concat(operations).ToArray();
         }
 
