@@ -2,62 +2,180 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
-        Title="LiveCharts Example" Height="800" Width="1500">
-    <Grid>
-        <lvc:CartesianChart x:Name="MyChart" 
-                            LegendLocation="Right" 
-                            Margin="0,60,0,0">
-            <lvc:CartesianChart.AxisX>
-                <lvc:Axis Title="Размер массива"/>
-            </lvc:CartesianChart.AxisX>
-            <lvc:CartesianChart.AxisY>
-                <lvc:Axis Title="Время выполнения (мс)"/>
-            </lvc:CartesianChart.AxisY>
-        </lvc:CartesianChart>
-        
-        <!-- Выпадающее меню выбора типа алгоритма -->
-        <ComboBox x:Name="AlgorithmTypeComboBox" 
-                  HorizontalAlignment="Left" 
-                  VerticalAlignment="Top" 
-                  Width="200" 
-                  Margin="10,10,0,0"
-                  SelectionChanged="AlgorithmTypeComboBox_SelectionChanged">
-            <ComboBoxItem Content="Сортировка" />
-            <ComboBoxItem Content="Математические операции" />
-            <ComboBoxItem Content="Матричные операции" />
-            <ComboBoxItem Content="Возведение в степень" />
-            <ComboBoxItem Content="Полиномы" />
-        </ComboBox>
-        
-        <!-- Выпадающее меню выбора алгоритма в зависимости от типа -->
-        <ComboBox x:Name="AlgorithmComboBox" 
-                  HorizontalAlignment="Left" 
-                  VerticalAlignment="Top" 
-                  Width="200" 
-                  Margin="10,50,0,0">
-        </ComboBox>
-        
-        <Button Name="ButtonСalculation" 
-                Click="ButtonСalculation_Click" 
-                Content="Начать расчет" 
-                HorizontalAlignment="Right" 
-                VerticalAlignment="Bottom" 
-                Width="150" 
-                Height="30" 
-                Margin="10"/>
-        
-        <!-- Поле для ввода количества запусков -->
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10,10,10,0">
-            <TextBlock Text="Количество запусков:" />
-            <TextBox x:Name="RunsTextBox" Width="150" Text="5" />
-            
-            <!-- Поле для ввода максимального количества элементов -->
-            <TextBlock Text="Максимальное количество элементов:" Margin="0,10,0,0" />
-            <TextBox x:Name="MaxElementsTextBox" Width="150" Text="2000" />
-            
-            <!-- Поле для ввода шага увеличения данных -->
-            <TextBlock Text="Шаг увеличения данных:" Margin="0,10,0,0" />
-            <TextBox x:Name="StepIncrementTextBox" Width="150" Text="20" />
+        Title="Визуализация графиков" Width="1500" Height="800">
+    <Grid Background="White">
+        <!-- Разделение основной сетки на три строки -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="137" />
+        </Grid.RowDefinitions>
+
+        <!-- Текст с названием алгоритма и апроксимацией -->
+        <StackPanel Grid.Row="0" Margin="30,20,20,10" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+            <!-- Белый кружок с синей обводкой для алгоритма -->
+            <Ellipse Width="16" Height="16" Fill="White" Stroke="Blue" StrokeThickness="2" Margin="0,0,8,0" VerticalAlignment="Center"/>
+            <TextBlock x:Name="AlgorithmTitleTextBlock" FontSize="20" FontWeight="SemiBold" Foreground="Black" Margin="0,0,20,0" VerticalAlignment="Center"/>
+
+            <!-- Красная пунктирная линия для апроксимации -->
+            <Line X1="0" Y1="0" X2="30" Y2="0" Stroke="Red" StrokeThickness="2" StrokeDashArray="2,2" Margin="0,0,8,0" VerticalAlignment="Center"/>
+            <TextBlock x:Name="ApproximationTitleTextBlock" FontSize="16" FontWeight="Light" Foreground="Gray" VerticalAlignment="Center"/>
         </StackPanel>
+
+        <!-- Верхняя часть окна с графиком -->
+        <Grid Grid.Row="1">
+            <!-- График -->
+            <lvc:CartesianChart x:Name="MyChart" 
+                                LegendLocation="None"
+                                Margin="0,0,0,0">
+                <lvc:CartesianChart.AxisX>
+                    <lvc:Axis Title="Размер массива"/>
+                </lvc:CartesianChart.AxisX>
+                <lvc:CartesianChart.AxisY>
+                    <lvc:Axis Title="Время выполнения (мс)"/>
+                </lvc:CartesianChart.AxisY>
+            </lvc:CartesianChart>
+        </Grid>
+
+        <!-- Нижняя панель -->
+        <Border Grid.Row="2" Background="#F5F5F5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Левая часть панели -->
+                <StackPanel Orientation="Horizontal" Grid.Column="0" Margin="30,30,0,0" HorizontalAlignment="Left">
+                    <!-- Блок "Тип алгоритма" -->
+                    <StackPanel Width="260" Orientation="Vertical" Margin="0,0,24,0">
+                        <TextBlock Text="Тип алгоритма" Foreground="Black" FontSize="20" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,5"/>
+                        <Border Height="40" Background="White" CornerRadius="10" Padding="0" Margin="0,5,0,0">
+                            <ComboBox x:Name="AlgorithmTypeComboBox" 
+                                      SelectionChanged="AlgorithmTypeComboBox_SelectionChanged"
+                                      FontSize="14" 
+                                      FontWeight="Light" 
+                                      Foreground="Black" 
+                                      Background="Transparent" 
+                                      BorderThickness="0" 
+                                      Margin="10,0,10,0"
+                                      VerticalContentAlignment="Center"
+                                      HorizontalContentAlignment="Center">
+                                <ComboBoxItem Content="Сортировка" />
+                                <ComboBoxItem Content="Математические операции" />
+                                <ComboBoxItem Content="Матричные операции" />
+                                <ComboBoxItem Content="Возведение в степень" />
+                                <ComboBoxItem Content="Полиномы" />
+                            </ComboBox>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Блок "Алгоритм" -->
+                    <StackPanel Width="260" Orientation="Vertical" Margin="0,0,24,0">
+                        <TextBlock Text="Алгоритм" Foreground="Black" FontSize="20" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,5"/>
+                        <Border Height="40" Background="White" CornerRadius="10" Padding="0" Margin="0,5,0,0">
+                            <ComboBox x:Name="AlgorithmComboBox" 
+                                      FontSize="14" 
+                                      FontWeight="Light" 
+                                      Foreground="Black" 
+                                      Background="Transparent" 
+                                      BorderThickness="0" 
+                                      Margin="10,0,10,0"
+                                      VerticalContentAlignment="Center"
+                                      HorizontalContentAlignment="Center">
+                            </ComboBox>
+                        </Border>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Правая часть панели -->
+                <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,30,30">
+                    <!-- Блоки ввода параметров -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,30,0">
+                        <!-- Кол-во запусков -->
+                        <StackPanel Orientation="Vertical" Margin="0,0,24,0">
+                            <TextBlock x:Name="RunsTextBlock" Text="Кол-во запусков" Foreground="Black" FontSize="16" FontWeight="Light" TextWrapping="Wrap" />
+                            <Border Height="40" Background="White" CornerRadius="10" Padding="0" Margin="0,5,0,0">
+                                <TextBox x:Name="RunsTextBox" 
+                                         Text="5" 
+                                         FontSize="16" 
+                                         FontWeight="Light" 
+                                         Foreground="Black" 
+                                         Background="Transparent" 
+                                         BorderThickness="0" 
+                                         Margin="12,10,12,10" />
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Макс. кол-во элементов -->
+                        <StackPanel Orientation="Vertical" Margin="0,0,24,0">
+                            <TextBlock x:Name="MaxElementsTextBlock" Text="Макс. кол-во элементов" Foreground="Black" FontSize="16" FontWeight="Light" TextWrapping="Wrap" />
+                            <Border Height="40" Background="White" CornerRadius="10" Padding="0" Margin="0,5,0,0">
+                                <TextBox x:Name="MaxElementsTextBox" 
+                                         Text="2000" 
+                                         FontSize="16" 
+                                         FontWeight="Light" 
+                                         Foreground="Black" 
+                                         Background="Transparent" 
+                                         BorderThickness="0" 
+                                         Margin="12,10,12,10" />
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Шаг увеличения данных -->
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock x:Name="StepIncrementTextBlock" Text="Шаг увеличения данных" Foreground="Black" FontSize="16" FontWeight="Light" TextWrapping="Wrap" />
+                            <Border Height="40" Background="White" CornerRadius="10" Padding="0" Margin="0,5,0,0">
+                                <TextBox x:Name="StepIncrementTextBox" 
+                                         Text="20" 
+                                         FontSize="16" 
+                                         FontWeight="Light" 
+                                         Foreground="Black" 
+                                         Background="Transparent" 
+                                         BorderThickness="0" 
+                                         Margin="12,10,12,10" />
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Кнопка "Начать расчет" -->
+                    <Button Name="ButtonСalculation" 
+                            Click="ButtonСalculation_Click" 
+                            Content="Начать расчет" 
+                            FontSize="16" 
+                            FontWeight="Medium" 
+                            BorderThickness="0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="#478ECC" />
+                                <Setter Property="Foreground" Value="White" />
+                                <Setter Property="BorderBrush" Value="Transparent" />
+                                <Setter Property="BorderThickness" Value="0" />
+                                <Setter Property="Padding" Value="50,28,50,28" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="border" 
+                                                    Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                                    Padding="{TemplateBinding Padding}" 
+                                                    CornerRadius="10">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="border" Property="Background" Value="#3B6FA0" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

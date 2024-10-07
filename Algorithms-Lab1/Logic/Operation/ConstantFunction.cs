@@ -2,9 +2,9 @@
 {
     public class ConstantFunction
     {
-        public int Calculate(int[] vector)
+        public double Calculate(int[] vector)
         {
-            return 1;
+            return Math.PI;
         }
     }
 }

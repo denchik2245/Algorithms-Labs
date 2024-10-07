@@ -10,7 +10,7 @@ namespace MyLibrary.Logic.Algorithms
             {
                 SorterType.BubbleSort => new BubbleSort(),
                 SorterType.QuickSort => new QuickSort(),
-                SorterType.TimSort => new Timsort(),
+                SorterType.TimSort => new TimSort(),
                 SorterType.ExchangeSort => new ExchangeSort(),
                 _ => throw new ArgumentException("Неподдерживаемый тип сортировщика.", nameof(sorterType)),
             };

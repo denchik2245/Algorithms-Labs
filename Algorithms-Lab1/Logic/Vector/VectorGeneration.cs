@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MyLibrary.Logic.Vector
+﻿namespace MyLibrary.Logic.Vector
 {
     public class VectorGenerator : IVectorGenerator
     {

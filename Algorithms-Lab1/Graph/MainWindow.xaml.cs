@@ -9,9 +9,7 @@ using MyLibrary.Logic.Vector;
 using MyLibrary.Logic.Algorithms;
 using MyLibrary.Logic.Operation;
 using MyVectorLibrary.Sorters;
-using LiveCharts.Defaults;
 using MathNet.Numerics;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace WpfApp
 {
@@ -20,68 +18,79 @@ namespace WpfApp
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = this;
+            ConfigureChart();
+            AlgorithmTypeComboBox.SelectedIndex = 0;
+            AlgorithmComboBox.SelectedIndex = 0;
         }
 
+        // Настройка графика
+        private void ConfigureChart()
+        {
+            MyChart.AxisX.Clear();
+            MyChart.AxisX.Add(new Axis
+            {
+                Title = "Размер массива",
+                LabelFormatter = value => value.ToString("F0")
+            });
+
+            MyChart.AxisY.Clear();
+            MyChart.AxisY.Add(new Axis
+            {
+                Title = "Время выполнения (мс)",
+                LabelFormatter = value => value.ToString("F0")
+            });
+
+            MyChart.AnimationsSpeed = TimeSpan.FromMilliseconds(300);
+            MyChart.Zoom = ZoomingOptions.Xy;
+            MyChart.LegendLocation = LegendLocation.None;
+        }
+
+        // Обработчик изменения типа алгоритма
         private void AlgorithmTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (AlgorithmTypeComboBox.SelectedItem is ComboBoxItem selectedItem)
             {
                 AlgorithmComboBox.Items.Clear();
-                switch (selectedItem.Content.ToString())
+                var algorithms = selectedItem.Content.ToString() switch
                 {
-                    case "Сортировка":
-                        AlgorithmComboBox.Items.Add("Сортировка пузырьком");
-                        AlgorithmComboBox.Items.Add("Сортировка обменом");
-                        AlgorithmComboBox.Items.Add("Блинная сортировка");
-                        AlgorithmComboBox.Items.Add("Быстрая сортировка");
-                        AlgorithmComboBox.Items.Add("Гибридная сортировка");
-                        break;
-                    case "Математические операции":
-                        AlgorithmComboBox.Items.Add("Постоянная функция");
-                        AlgorithmComboBox.Items.Add("Умножение элементов");
-                        AlgorithmComboBox.Items.Add("Сумма элементов");
-                        break;
-                    case "Матричные операции":
-                        AlgorithmComboBox.Items.Add("Умножение матриц");
-                        break;
-                    case "Возведение в степень":
-                        AlgorithmComboBox.Items.Add("Простое возведение");
-                        AlgorithmComboBox.Items.Add("Рекурсивное возведение");
-                        AlgorithmComboBox.Items.Add("Быстрое возведение");
-                        AlgorithmComboBox.Items.Add("Классическое быстрое возведение");
-                        break;
-                    case "Полиномы":
-                        AlgorithmComboBox.Items.Add("Прямое вычисление");
-                        AlgorithmComboBox.Items.Add("Схема Горнера");
-                        break;
+                    "Сортировка" => new[] { "Сортировка пузырьком", "Сортировка обменом", "Блинная сортировка", "Быстрая сортировка", "Гибридная сортировка", "Сортировка Шелла" },
+                    "Математические операции" => new[] { "Постоянная функция", "Умножение элементов", "Сумма элементов" },
+                    "Матричные операции" => new[] { "Умножение матриц" },
+                    "Возведение в степень" => new[] { "Простое возведение", "Рекурсивное возведение", "Быстрое возведение", "Классическое быстрое возведение" },
+                    "Полиномы" => new[] { "Прямое вычисление", "Схема Горнера" },
+                    _ => Array.Empty<string>()
+                };
+
+                foreach (var algorithm in algorithms)
+                {
+                    AlgorithmComboBox.Items.Add(algorithm);
+                }
+                
+                // Изменение названий полей ввода для алгоритмов возведения в степень
+                if (selectedItem.Content.ToString() == "Возведение в степень")
+                {
+                    RunsTextBlock.Text = "Максимальная степень";
+                    MaxElementsTextBlock.Text = "Основание степени";
+                    StepIncrementTextBlock.Text = "Шаг увеличения степени";
+                }
+                else
+                {
+                    RunsTextBlock.Text = "Кол-во запусков";
+                    MaxElementsTextBlock.Text = "Макс. кол-во элементов";
+                    StepIncrementTextBlock.Text = "Шаг увеличения данных";
                 }
             }
         }
 
+        // Обработчик кнопки расчета
         private void ButtonСalculation_Click(object sender, RoutedEventArgs e)
         {
-            if (AlgorithmComboBox.SelectedItem == null)
+            if (AlgorithmComboBox.SelectedItem == null || 
+                !int.TryParse(RunsTextBox.Text, out int runs) || runs <= 0 || 
+                !int.TryParse(MaxElementsTextBox.Text, out int maxElements) || maxElements <= 0 || 
+                !int.TryParse(StepIncrementTextBox.Text, out int stepIncrement) || stepIncrement <= 0)
             {
-                MessageBox.Show("Пожалуйста, выберите алгоритм.");
-                return;
-            }
-
-            if (!int.TryParse(RunsTextBox.Text, out int runs) || runs <= 0)
-            {
-                MessageBox.Show("Введите корректное количество запусков.");
-                return;
-            }
-
-            if (!int.TryParse(MaxElementsTextBox.Text, out int maxElements) || maxElements <= 0)
-            {
-                MessageBox.Show("Введите корректное максимальное количество элементов.");
-                return;
-            }
-
-            if (!int.TryParse(StepIncrementTextBox.Text, out int stepIncrement) || stepIncrement <= 0)
-            {
-                MessageBox.Show("Введите корректный шаг увеличения данных.");
+                MessageBox.Show("Пожалуйста, введите корректные данные.");
                 return;
             }
 
@@ -89,255 +98,71 @@ namespace WpfApp
             double[] times = new double[sizes.Length];
 
             string selectedAlgorithm = AlgorithmComboBox.SelectedItem.ToString();
+            Action<int[]> algorithmAction = GetAlgorithmAction(selectedAlgorithm);
 
-            if (selectedAlgorithm == "Быстрая сортировка")
-            {
-                for (int i = 0; i < sizes.Length; i++)
-                {
-                    int size = sizes[i];
-                    double totalTime = 0;
-
-
-                    for (int run = 0; run < runs; run++)
-                    {
-                        int[] array = VectorGenerator.GenerateRandomVector(size);
-                        QuickSort sorter = new QuickSort();
-                        Stopwatch stopwatch = new Stopwatch();
-
-                        // Замер времени сортировки
-                        stopwatch.Start();
-                        sorter.Sort(array);
-                        stopwatch.Stop();
-
-                        totalTime += stopwatch.Elapsed.TotalMilliseconds;
-                    }
-
-                    times[i] = totalTime / runs; // Среднее время
-                }
-            }
-            else if (selectedAlgorithm == "Сортировка пузырьком")
-            {
-                for (int i = 0; i < sizes.Length; i++)
-                {
-                    int size = sizes[i];
-                    double totalTime = 0;
-
-                    for (int run = 0; run < runs; run++)
-                    {
-                        int[] array = VectorGenerator.GenerateRandomVector(size);
-                        BubbleSort sorter = new BubbleSort();
-                        Stopwatch stopwatch = new Stopwatch();
-
-                        // Замер времени сортировки
-                        stopwatch.Start();
-                        sorter.Sort(array);
-                        stopwatch.Stop();
-
-                        totalTime += stopwatch.Elapsed.TotalMilliseconds;
-                    }
-
-                    times[i] = totalTime / runs; // Среднее время
-                }
-            }
-            else if (selectedAlgorithm == "Сортировка обменом")
-            {
-                for (int i = 0; i < sizes.Length; i++)
-                {
-                    int size = sizes[i];
-                    double totalTime = 0;
-
-                    for (int run = 0; run < runs; run++)
-                    {
-                        int[] array = VectorGenerator.GenerateRandomVector(size);
-                        ExchangeSort sorter = new ExchangeSort();
-                        Stopwatch stopwatch = new Stopwatch();
-
-                        // Замер времени сортировки
-                        stopwatch.Start();
-                        sorter.Sort(array);
-                        stopwatch.Stop();
-
-                        totalTime += stopwatch.Elapsed.TotalMilliseconds;
-                    }
-
-                    times[i] = totalTime / runs; // Среднее время
-                }
-            }
-            else if (selectedAlgorithm == "Блинная сортировка")
-            {
-                for (int i = 0; i < sizes.Length; i++)
-                {
-                    int size = sizes[i];
-                    double totalTime = 0;
-
-                    for (int run = 0; run < runs; run++)
-                    {
-                        int[] array = VectorGenerator.GenerateRandomVector(size); 
-                        PancakeSort sorter = new PancakeSort();
-                        Stopwatch stopwatch = new Stopwatch();
-
-                        // Замер времени сортировки
-                        stopwatch.Start();
-                        sorter.Sort(array); 
-                        stopwatch.Stop();
-
-                        totalTime += stopwatch.Elapsed.TotalMilliseconds;
-                    }
-
-                    times[i] = totalTime / runs; // Среднее время
-                }
-            }
-            else if (selectedAlgorithm == "Гибридная сортировка")
-            {
-                for (int i = 0; i < sizes.Length; i++)
-                {
-                    int size = sizes[i];
-                    double totalTime = 0;
-
-                    for (int run = 0; run < runs; run++)
-                    {
-                        int[] array = VectorGenerator.GenerateRandomVector(size);
-                        Timsort sorter = new Timsort();
-                        Stopwatch stopwatch = new Stopwatch();
-
-                        // Замер времени сортировки
-                        stopwatch.Start();
-                        sorter.Sort(array);
-                        stopwatch.Stop();
-
-
-                        totalTime += stopwatch.Elapsed.TotalMilliseconds;
-                    }
-
-                    times[i] = totalTime / runs; // Среднее время
-                }
-            }
-            else if (selectedAlgorithm == "Постоянная функция")
-            {
-                ConstantFunction function = new ConstantFunction();
-                for (int i = 0; i < sizes.Length; i++)
-                {
-                    int[] vector = VectorGenerator.GenerateRandomVector(sizes[i]);
-                    double totalTime = 0;
-
-                    for (int run = 0; run < runs; run++)
-                    {
-                        Stopwatch stopwatch = new Stopwatch();
-                        stopwatch.Start();
-                        function.Calculate(vector);
-                        stopwatch.Stop();
-
-                        totalTime += stopwatch.Elapsed.TotalMilliseconds;
-                    }
-
-                    times[i] = totalTime / runs;
-                }
-            }
-            else if (selectedAlgorithm == "Умножение элементов")
-            {
-                MultiplicationOfElements multiplication = new MultiplicationOfElements();
-                for (int i = 0; i < sizes.Length; i++)
-                {
-                    int[] vector = VectorGenerator.GenerateRandomVector(sizes[i]);
-                    double totalTime = 0;
-
-                    for (int run = 0; run < runs; run++)
-                    {
-                        Stopwatch stopwatch = new Stopwatch();
-                        stopwatch.Start();
-                        multiplication.Calculate(vector);
-                        stopwatch.Stop();
-
-                        totalTime += stopwatch.Elapsed.TotalMilliseconds;
-                    }
-
-                    times[i] = totalTime / runs;
-                }
-            }
-            else if (selectedAlgorithm == "Сумма элементов")
-            {
-                SumOfElements sum = new SumOfElements();
-                for (int i = 0; i < sizes.Length; i++)
-                {
-                    int[] vector = VectorGenerator.GenerateRandomVector(sizes[i]);
-                    double totalTime = 0;
-
-                    for (int run = 0; run < runs; run++)
-                    {
-                        Stopwatch stopwatch = new Stopwatch();
-                        stopwatch.Start();
-                        sum.Calculate(vector);
-                        stopwatch.Stop();
-
-                        totalTime += stopwatch.Elapsed.TotalMilliseconds;
-                    }
-
-                    times[i] = totalTime / runs;
-                }
-            }
-            else if (selectedAlgorithm == "Прямое вычисление")
-            {
-                NaivePolynomialEvaluation naivePolynomial = new NaivePolynomialEvaluation();
-                for (int i = 0; i < sizes.Length; i++)
-                {
-                    int[] coefficients = VectorGenerator.GenerateRandomVector(sizes[i]);
-                    double totalTime = 0;
-
-                    for (int run = 0; run < runs; run++)
-                    {
-                        Stopwatch stopwatch = new Stopwatch();
-                        stopwatch.Start();
-                        naivePolynomial.Calculate(coefficients, 1.0);
-                        stopwatch.Stop();
-
-                        totalTime += stopwatch.Elapsed.TotalMilliseconds;
-                    }
-
-                    times[i] = totalTime / runs;
-                }
-            }
-            else if (selectedAlgorithm == "Схема Горнера")
-            {
-                HornerMethod hornerMethod = new HornerMethod();
-                for (int i = 0; i < sizes.Length; i++)
-                {
-                    int[] coefficients = VectorGenerator.GenerateRandomVector(sizes[i]);
-                    double totalTime = 0;
-
-
-                    for (int run = 0; run < runs; run++)
-                    {
-                        Stopwatch stopwatch = new Stopwatch();
-                        stopwatch.Start();
-                        hornerMethod.Calculate(coefficients, 1.0);
-                        stopwatch.Stop();
-
-                        totalTime += stopwatch.Elapsed.TotalMilliseconds;
-                    }
-
-                    times[i] = totalTime / runs;
-                }
-            }
-            else
+            if (algorithmAction == null)
             {
                 MessageBox.Show("Данный алгоритм еще не реализован.");
                 return;
             }
 
-            // Строим график
+            for (int i = 0; i < sizes.Length; i++)
+            {
+                int size = sizes[i];
+                double totalTime = 0;
+
+                for (int run = 0; run < runs; run++)
+                {
+                    int[] array = VectorGenerator.GenerateRandomVector(size);
+                    Stopwatch stopwatch = Stopwatch.StartNew();
+                    algorithmAction(array);
+                    stopwatch.Stop();
+
+                    totalTime += stopwatch.Elapsed.TotalMilliseconds;
+                }
+
+                times[i] = totalTime / runs;
+            }
+
             PlotGraph(sizes, times);
         }
 
+        // Определение действия для выбранного алгоритма
+        private Action<int[]> GetAlgorithmAction(string selectedAlgorithm)
+        {
+            return selectedAlgorithm switch
+            {
+                "Быстрая сортировка" => array => new QuickSort().Sort(array),
+                "Сортировка пузырьком" => array => new BubbleSort().Sort(array),
+                "Сортировка обменом" => array => new ExchangeSort().Sort(array),
+                "Блинная сортировка" => array => new PancakeSort().Sort(array),
+                "Гибридная сортировка" => array => new TimSort().Sort(array),
+                "Постоянная функция" => array => new ConstantFunction().Calculate(array),
+                "Умножение элементов" => array => new MultiplicationOfElements().Calculate(array),
+                "Сумма элементов" => array => new SumOfElements().Calculate(array),
+                "Прямое вычисление" => array => new NaivePolynomialEvaluation().Calculate(array, 1.0),
+                "Схема Горнера" => array => new HornerMethod().Calculate(array, 1.0),
+                "Сортировка Шелла" => array => new ShellSort().Sort(array),
+                _ => null
+            };
+        }
+
+        // Построение графика
         private void PlotGraph(int[] sizes, double[] times)
         {
+            string selectedAlgorithm = AlgorithmComboBox.SelectedItem.ToString();
+            
+            AlgorithmTitleTextBlock.Text = $"Алгоритм: {selectedAlgorithm}";
+            ApproximationTitleTextBlock.Text = "Апроксимация";
+
             LineSeries lineSeries = new LineSeries
             {
+                Title = selectedAlgorithm,
                 Values = new ChartValues<double>(times),
                 PointGeometry = DefaultGeometries.Circle,
                 PointGeometrySize = 5
             };
-
-            // Очищаем предыдущие данные графика
+            
             MyChart.Series.Clear();
             MyChart.Series.Add(lineSeries);
 
@@ -356,20 +181,23 @@ namespace WpfApp
             };
 
             MyChart.Series.Add(approximationSeries);
-
-            // Настраиваем оси
+            
             MyChart.AxisX.Clear();
             MyChart.AxisX.Add(new Axis
             {
-                Title = "Размер массива",
+                Title = "Размер массива (кол-во элементов)",
                 Labels = sizes.Select(x => x.ToString()).ToArray()
             });
 
             MyChart.AxisY.Clear();
             MyChart.AxisY.Add(new Axis
             {
-                Title = "Время (мс)"
+                Title = "Время (мс)",
+                LabelFormatter = value => value.ToString("F5")
             });
+            
+            MyChart.Zoom = ZoomingOptions.Xy;
+            MyChart.AnimationsSpeed = TimeSpan.FromMilliseconds(200);
         }
     }
 }
