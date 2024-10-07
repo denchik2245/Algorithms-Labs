@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using LiveCharts;
 using LiveCharts.Wpf;
+using Logic.Algorithms;
 using MyLibrary.Logic.Vector;
 using MyLibrary.Logic.Algorithms;
 using MyLibrary.Logic.Operation;
@@ -70,14 +71,20 @@ namespace WpfApp
                 if (selectedItem.Content.ToString() == "Возведение в степень")
                 {
                     RunsTextBlock.Text = "Максимальная степень";
-                    MaxElementsTextBlock.Text = "Основание степени";
                     StepIncrementTextBlock.Text = "Шаг увеличения степени";
+
+                    // Скрываем поле "Основание степени"
+                    MaxElementsTextBlock.Visibility = Visibility.Collapsed;
+                    MaxElementsTextBox.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
                     RunsTextBlock.Text = "Кол-во запусков";
-                    MaxElementsTextBlock.Text = "Макс. кол-во элементов";
                     StepIncrementTextBlock.Text = "Шаг увеличения данных";
+
+                    // Показываем поле "Макс. кол-во элементов" обратно для других алгоритмов
+                    MaxElementsTextBlock.Visibility = Visibility.Visible;
+                    MaxElementsTextBox.Visibility = Visibility.Visible;
                 }
             }
         }
@@ -86,47 +93,98 @@ namespace WpfApp
         private void ButtonСalculation_Click(object sender, RoutedEventArgs e)
         {
             if (AlgorithmComboBox.SelectedItem == null || 
-                !int.TryParse(RunsTextBox.Text, out int runs) || runs <= 0 || 
-                !int.TryParse(MaxElementsTextBox.Text, out int maxElements) || maxElements <= 0 || 
+                !int.TryParse(RunsTextBox.Text, out int maxExponent) || maxExponent <= 0 || 
                 !int.TryParse(StepIncrementTextBox.Text, out int stepIncrement) || stepIncrement <= 0)
             {
                 MessageBox.Show("Пожалуйста, введите корректные данные.");
                 return;
             }
 
-            int[] sizes = Enumerable.Range(1, maxElements / stepIncrement).Select(x => x * stepIncrement).ToArray();
-            double[] times = new double[sizes.Length];
-
+            string selectedAlgorithmType = (AlgorithmTypeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
             string selectedAlgorithm = AlgorithmComboBox.SelectedItem.ToString();
-            Action<int[]> algorithmAction = GetAlgorithmAction(selectedAlgorithm);
 
-            if (algorithmAction == null)
+            if (selectedAlgorithmType == "Возведение в степень")
             {
-                MessageBox.Show("Данный алгоритм еще не реализован.");
-                return;
-            }
+                // Для возведения в степень: генерируем степени с шагом и считаем шаги
+                int[] exponents = Enumerable.Range(1, maxExponent / stepIncrement).Select(i => i * stepIncrement).ToArray();
+                double[] steps = new double[exponents.Length];
 
-            for (int i = 0; i < sizes.Length; i++)
-            {
-                int size = sizes[i];
-                double totalTime = 0;
+                Action<int[], int> powerAlgorithm = GetPowerAlgorithmAction(selectedAlgorithm);
 
-                for (int run = 0; run < runs; run++)
+                if (powerAlgorithm == null)
                 {
-                    int[] array = VectorGenerator.GenerateRandomVector(size);
-                    Stopwatch stopwatch = Stopwatch.StartNew();
-                    algorithmAction(array);
-                    stopwatch.Stop();
-
-                    totalTime += stopwatch.Elapsed.TotalMilliseconds;
+                    MessageBox.Show("Данный алгоритм еще не реализован.");
+                    return;
                 }
 
-                times[i] = totalTime / runs;
-            }
+                for (int i = 0; i < exponents.Length; i++)
+                {
+                    int exponent = exponents[i];
+                    double totalSteps = 0;
 
-            PlotGraph(sizes, times);
+                    // Простое возведение требует exponent шагов умножения
+                    totalSteps = exponent;
+
+                    steps[i] = totalSteps; // Количество шагов равно степени
+                }
+
+                PlotGraph(exponents, steps, "Количество шагов", "Степень");
+            }
+            else
+            {
+                // Для остальных алгоритмов продолжаем работать с временем выполнения
+                if (!int.TryParse(MaxElementsTextBox.Text, out int maxElements) || maxElements <= 0 || 
+                    !int.TryParse(RunsTextBox.Text, out int runs) || runs <= 0)
+                {
+                    MessageBox.Show("Пожалуйста, введите корректные данные.");
+                    return;
+                }
+
+                int[] sizes = Enumerable.Range(1, maxElements / stepIncrement).Select(x => x * stepIncrement).ToArray();
+                double[] times = new double[sizes.Length];
+
+                Action<int[]> algorithmAction = GetAlgorithmAction(selectedAlgorithm);
+
+                if (algorithmAction == null)
+                {
+                    MessageBox.Show("Данный алгоритм еще не реализован.");
+                    return;
+                }
+
+                for (int i = 0; i < sizes.Length; i++)
+                {
+                    int size = sizes[i];
+                    double totalTime = 0;
+
+                    for (int run = 0; run < runs; run++)
+                    {
+                        int[] array = VectorGenerator.GenerateRandomVector(size);
+                        Stopwatch stopwatch = Stopwatch.StartNew();
+                        algorithmAction(array);
+                        stopwatch.Stop();
+
+                        totalTime += stopwatch.Elapsed.TotalMilliseconds;
+                    }
+
+                    times[i] = totalTime / runs;
+                }
+
+                PlotGraph(sizes, times, "Время выполнения (мс)", "Размер массива (кол-во элементов)");
+            }
         }
 
+
+
+        private Action<int[], int> GetPowerAlgorithmAction(string selectedAlgorithm)
+        {
+            return selectedAlgorithm switch
+            {
+                "Простое возведение" => (array, power) => new NaivePower().RaiseToPower(array, power),
+                // Добавить другие алгоритмы возведения в степень, если нужно
+                _ => null
+            };
+        }
+        
         // Определение действия для выбранного алгоритма
         private Action<int[]> GetAlgorithmAction(string selectedAlgorithm)
         {
@@ -147,17 +205,16 @@ namespace WpfApp
         }
 
         // Построение графика
-        private void PlotGraph(int[] sizes, double[] times)
+        private void PlotGraph(int[] xValues, double[] yValues, string yAxisTitle, string xAxisTitle)
         {
             string selectedAlgorithm = AlgorithmComboBox.SelectedItem.ToString();
             
             AlgorithmTitleTextBlock.Text = $"Алгоритм: {selectedAlgorithm}";
-            ApproximationTitleTextBlock.Text = "Апроксимация";
-
+            
             LineSeries lineSeries = new LineSeries
             {
                 Title = selectedAlgorithm,
-                Values = new ChartValues<double>(times),
+                Values = new ChartValues<double>(yValues),
                 PointGeometry = DefaultGeometries.Circle,
                 PointGeometrySize = 5
             };
@@ -165,38 +222,52 @@ namespace WpfApp
             MyChart.Series.Clear();
             MyChart.Series.Add(lineSeries);
 
-            // Апроксимация
-            var coefficients = Fit.Polynomial(sizes.Select(x => (double)x).ToArray(), times, 2);
-            var polynomial = new Func<double, double>(x => coefficients[0] + coefficients[1] * x + coefficients[2] * x * x);
-            double[] approximatedValues = sizes.Select(x => polynomial(x)).ToArray();
-
-            LineSeries approximationSeries = new LineSeries
+            // Добавляем апроксимацию только для тех алгоритмов, где ось Y — время выполнения
+            if (yAxisTitle == "Время выполнения (мс)")
             {
-                Title = "Апроксимация",
-                Values = new ChartValues<double>(approximatedValues),
-                LineSmoothness = 0,
-                StrokeDashArray = new System.Windows.Media.DoubleCollection { 2 },
-                PointGeometry = null
-            };
+                // Построение апроксимации
+                ApproximationTitleTextBlock.Text = "Апроксимация";
 
-            MyChart.Series.Add(approximationSeries);
-            
+                var coefficients = Fit.Polynomial(xValues.Select(x => (double)x).ToArray(), yValues, 2);
+                var polynomial = new Func<double, double>(x => coefficients[0] + coefficients[1] * x + coefficients[2] * x * x);
+                double[] approximatedValues = xValues.Select(x => polynomial(x)).ToArray();
+
+                LineSeries approximationSeries = new LineSeries
+                {
+                    Title = "Апроксимация",
+                    Values = new ChartValues<double>(approximatedValues),
+                    LineSmoothness = 0,
+                    StrokeDashArray = new System.Windows.Media.DoubleCollection { 2 },
+                    PointGeometry = null
+                };
+
+                MyChart.Series.Add(approximationSeries);
+            }
+            else
+            {
+                // Если это возведение в степень, апроксимацию не строим
+                ApproximationTitleTextBlock.Text = string.Empty;
+            }
+
+            // Настройка осей графика
             MyChart.AxisX.Clear();
             MyChart.AxisX.Add(new Axis
             {
-                Title = "Размер массива (кол-во элементов)",
-                Labels = sizes.Select(x => x.ToString()).ToArray()
+                Title = xAxisTitle,
+                Labels = xValues.Select(x => x.ToString()).ToArray()
             });
 
             MyChart.AxisY.Clear();
             MyChart.AxisY.Add(new Axis
             {
-                Title = "Время (мс)",
+                Title = yAxisTitle,
                 LabelFormatter = value => value.ToString("F5")
             });
             
             MyChart.Zoom = ZoomingOptions.Xy;
             MyChart.AnimationsSpeed = TimeSpan.FromMilliseconds(200);
         }
+
+
     }
 }

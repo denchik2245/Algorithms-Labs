@@ -108,7 +108,7 @@
                         </StackPanel>
 
                         <!-- Макс. кол-во элементов -->
-                        <StackPanel Orientation="Vertical" Margin="0,0,24,0">
+                        <StackPanel x:Name="MaxElementsPanel" Orientation="Vertical" Margin="0,0,24,0">
                             <TextBlock x:Name="MaxElementsTextBlock" Text="Макс. кол-во элементов" Foreground="Black" FontSize="16" FontWeight="Light" TextWrapping="Wrap" />
                             <Border Height="40" Background="White" CornerRadius="10" Padding="0" Margin="0,5,0,0">
                                 <TextBox x:Name="MaxElementsTextBox" 
