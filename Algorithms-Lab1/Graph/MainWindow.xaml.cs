@@ -11,6 +11,7 @@ using MyLibrary.Logic.Algorithms;
 using MyLibrary.Logic.Operation;
 using MyVectorLibrary.Sorters;
 using MathNet.Numerics;
+using MyLibrary.Logic.Matrix;
 
 namespace WpfApp
 {
@@ -92,8 +93,8 @@ namespace WpfApp
         // Обработчик кнопки расчета
         private void ButtonСalculation_Click(object sender, RoutedEventArgs e)
         {
-            if (AlgorithmComboBox.SelectedItem == null || 
-                !int.TryParse(RunsTextBox.Text, out int maxExponent) || maxExponent <= 0 || 
+            if (AlgorithmComboBox.SelectedItem == null ||
+                !int.TryParse(RunsTextBox.Text, out int runs) || runs <= 0 ||
                 !int.TryParse(StepIncrementTextBox.Text, out int stepIncrement) || stepIncrement <= 0)
             {
                 MessageBox.Show("Пожалуйста, введите корректные данные.");
@@ -103,9 +104,48 @@ namespace WpfApp
             string selectedAlgorithmType = (AlgorithmTypeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
             string selectedAlgorithm = AlgorithmComboBox.SelectedItem.ToString();
 
-            if (selectedAlgorithmType == "Возведение в степень")
+            if (selectedAlgorithmType == "Матричные операции" && selectedAlgorithm == "Умножение матриц")
+            {
+                if (!int.TryParse(MaxElementsTextBox.Text, out int maxSize) || maxSize <= 0)
+                {
+                    MessageBox.Show("Пожалуйста, введите корректные данные.");
+                    return;
+                }
+
+                int[] sizes = Enumerable.Range(1, maxSize / stepIncrement).Select(x => x * stepIncrement).ToArray();
+                double[] times = new double[sizes.Length];
+
+                for (int i = 0; i < sizes.Length; i++)
+                {
+                    int size = sizes[i];
+                    double totalTime = 0;
+
+                    for (int run = 0; run < runs; run++)
+                    {
+                        int[,] matrixA = MatrixGenerator.GenerateRandomSquareMatrix(size, 0, 10);
+                        int[,] matrixB = MatrixGenerator.GenerateRandomSquareMatrix(size, 0, 10);
+
+                        Stopwatch stopwatch = Stopwatch.StartNew();
+                        MatrixGenerator.OptimizedMultiplyMatrices(matrixA, matrixB);
+                        stopwatch.Stop();
+
+                        totalTime += stopwatch.Elapsed.TotalMilliseconds;
+                    }
+
+                    times[i] = totalTime / runs;
+                }
+
+                PlotGraph(sizes, times, "Время выполнения (мс)", "Размер матрицы (N x N)");
+            }
+            else if (selectedAlgorithmType == "Возведение в степень")
             {
                 // Генерация степеней от 1 до maxExponent с шагом stepIncrement
+                if (!int.TryParse(RunsTextBox.Text, out int maxExponent) || maxExponent <= 0)
+                {
+                    MessageBox.Show("Пожалуйста, введите корректные данные.");
+                    return;
+                }
+
                 int[] exponents = Enumerable.Range(1, maxExponent / stepIncrement).Select(i => i * stepIncrement).ToArray();
                 double[] steps = new double[exponents.Length];
 
@@ -131,8 +171,7 @@ namespace WpfApp
             else
             {
                 // Для остальных алгоритмов (сортировка и т.д.)
-                if (!int.TryParse(MaxElementsTextBox.Text, out int maxElements) || maxElements <= 0 || 
-                    !int.TryParse(RunsTextBox.Text, out int runs) || runs <= 0)
+                if (!int.TryParse(MaxElementsTextBox.Text, out int maxElements) || maxElements <= 0)
                 {
                     MessageBox.Show("Пожалуйста, введите корректные данные.");
                     return;
@@ -274,7 +313,5 @@ namespace WpfApp
             MyChart.Zoom = ZoomingOptions.Xy;
             MyChart.AnimationsSpeed = TimeSpan.FromMilliseconds(200);
         }
-
-
     }
 }
