@@ -173,12 +173,12 @@ namespace WpfApp
                     for (int run = 0; run < runs; run++)
                     {
                         int[] array = VectorGenerator.GenerateRandomVector(size); 
-                        /* PancakeSort sorter = new PancakeSort();  вваываываываываываыаыввы*/
+                        PancakeSort sorter = new PancakeSort();
                         Stopwatch stopwatch = new Stopwatch();
 
                         // Замер времени сортировки
                         stopwatch.Start();
-                        /* sorter.Sort(array); вваываываываываываыаыввы */ 
+                        sorter.Sort(array); 
                         stopwatch.Stop();
 
                         totalTime += stopwatch.Elapsed.TotalMilliseconds;
