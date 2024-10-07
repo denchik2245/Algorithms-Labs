@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
@@ -54,7 +54,7 @@ namespace WpfApp
                 AlgorithmComboBox.Items.Clear();
                 var algorithms = selectedItem.Content.ToString() switch
                 {
-                    "Сортировка" => new[] { "Сортировка пузырьком", "Сортировка обменом", "Блинная сортировка", "Быстрая сортировка", "Гибридная сортировка" },
+                    "Сортировка" => new[] { "Сортировка пузырьком", "Сортировка обменом", "Блинная сортировка", "Быстрая сортировка", "Гибридная сортировка", "Сортировка Шелла" },
                     "Математические операции" => new[] { "Постоянная функция", "Умножение элементов", "Сумма элементов" },
                     "Матричные операции" => new[] { "Умножение матриц" },
                     "Возведение в степень" => new[] { "Простое возведение", "Рекурсивное возведение", "Быстрое возведение", "Классическое быстрое возведение" },
@@ -200,6 +200,7 @@ namespace WpfApp
                 "Сумма элементов" => array => new SumOfElements().Calculate(array),
                 "Прямое вычисление" => array => new NaivePolynomialEvaluation().Calculate(array, 1.0),
                 "Схема Горнера" => array => new HornerMethod().Calculate(array, 1.0),
+                "Сортировка Шелла" => array => new ShellSort().Sort(array),
                 _ => null
             };
         }
