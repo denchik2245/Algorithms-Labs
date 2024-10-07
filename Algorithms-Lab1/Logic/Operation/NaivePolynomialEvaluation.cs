@@ -6,9 +6,12 @@
         {
             int n = coefficients.Length;
             double result = 0;
+            double currentPower = 1;
+            
             for (int k = 0; k < n; k++)
             {
-                result += coefficients[k] * Math.Pow(x, k);
+                result += coefficients[k] * currentPower;
+                currentPower *= x;
             }
             return result;
         }
