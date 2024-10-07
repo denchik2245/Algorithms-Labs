@@ -105,13 +105,13 @@ namespace WpfApp
 
             if (selectedAlgorithmType == "Возведение в степень")
             {
-                // Для возведения в степень: генерируем степени с шагом и считаем шаги
+                // Генерация степеней от 1 до maxExponent с шагом stepIncrement
                 int[] exponents = Enumerable.Range(1, maxExponent / stepIncrement).Select(i => i * stepIncrement).ToArray();
                 double[] steps = new double[exponents.Length];
 
-                Action<int[], int> powerAlgorithm = GetPowerAlgorithmAction(selectedAlgorithm);
+                Func<int[], int, int> powerAlgorithmWithSteps = GetPowerAlgorithmActionWithSteps(selectedAlgorithm);
 
-                if (powerAlgorithm == null)
+                if (powerAlgorithmWithSteps == null)
                 {
                     MessageBox.Show("Данный алгоритм еще не реализован.");
                     return;
@@ -120,19 +120,17 @@ namespace WpfApp
                 for (int i = 0; i < exponents.Length; i++)
                 {
                     int exponent = exponents[i];
-                    double totalSteps = 0;
 
-                    // Простое возведение требует exponent шагов умножения
-                    totalSteps = exponent;
-
-                    steps[i] = totalSteps; // Количество шагов равно степени
+                    // Применяем алгоритм возведения в степень и подсчитываем шаги
+                    int[] array = VectorGenerator.GenerateRandomVector(1); // Вектор с 1 элементом
+                    steps[i] = powerAlgorithmWithSteps(array, exponent); // Сохраняем количество шагов
                 }
 
                 PlotGraph(exponents, steps, "Количество шагов", "Степень");
             }
             else
             {
-                // Для остальных алгоритмов продолжаем работать с временем выполнения
+                // Для остальных алгоритмов (сортировка и т.д.)
                 if (!int.TryParse(MaxElementsTextBox.Text, out int maxElements) || maxElements <= 0 || 
                     !int.TryParse(RunsTextBox.Text, out int runs) || runs <= 0)
                 {
@@ -174,13 +172,21 @@ namespace WpfApp
         }
 
 
-
-        private Action<int[], int> GetPowerAlgorithmAction(string selectedAlgorithm)
+        private Func<int[], int, int> GetPowerAlgorithmActionWithSteps(string selectedAlgorithm)
         {
             return selectedAlgorithm switch
             {
-                "Простое возведение" => (array, power) => new NaivePower().RaiseToPower(array, power),
-                // Добавить другие алгоритмы возведения в степень, если нужно
+                "Простое возведение" => (array, power) =>
+                {
+                    return power;
+                },
+                "Рекурсивное возведение" => (array, power) =>
+                {
+                    int steps;
+                    new RecursivePower().RaiseToPower(array, power);
+                    RecursivePower.Power(array[0], power, out steps);
+                    return steps;
+                },
                 _ => null
             };
         }
