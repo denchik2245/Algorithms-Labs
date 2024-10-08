@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Logic.Algorithms
+﻿namespace Logic.Algorithms
 {
     public class QuickPowerClassic : IPowerRaiser
     {
@@ -28,17 +22,17 @@ namespace Logic.Algorithms
 
             while (power > 0)
             {
-                steps++; // Увеличиваем количество шагов
+                steps++;
 
-                if (power % 2 == 1) // Нечетная степень
+                if (power % 2 == 1)
                 {
-                    result *= baseValue; // Умножаем результат на базу
-                    power--; // Уменьшаем степень на 1
+                    result *= baseValue;
+                    power--;
                 }
                 else
                 {
-                    baseValue *= baseValue; // Возводим базу в квадрат
-                    power /= 2; // Делим степень на 2
+                    baseValue *= baseValue;
+                    power /= 2;
                 }
             }
 

@@ -36,11 +36,7 @@ namespace MyLibrary.Logic.Algorithms
             int start = 0;
             while (start < index)
             {
-                // Swap elements
-                int temp = array[start];
-                array[start] = array[index];
-                array[index] = temp;
-
+                (array[start], array[index]) = (array[index], array[start]);
                 index--;
                 start++;
             }

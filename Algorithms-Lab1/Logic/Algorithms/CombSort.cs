@@ -1,79 +1,44 @@
-﻿using System;
+﻿using MyVectorLibrary.Sorters;
 
-class Program
+namespace MyLibrary.Logic.Algorithms
 {
-    static void Swap(ref int value1, ref int value2)
+    public class CombSort : ISorter
     {
-        var temp = value1;
-        value1 = value2;
-        value2 = temp;
-    }
-
-    static int GetNextStep(int s)
-    {
-        s = s * 1000 / 1247;
-        return s > 1 ? s : 1;
-    }
-
-    static int[] CombSort(int[] array)
-    {
-        var arrayLength = array.Length;
-        var currentStep = arrayLength - 1;
-
-        while (currentStep > 1)
+        public void Sort(int[] array)
         {
-            for (int i = 0; i + currentStep < array.Length; i++)
+            int n = array.Length;
+            int gap = n;
+            bool swapped = true;
+
+            while (gap > 1 || swapped)
             {
-                if (array[i] > array[i + currentStep])
+                if (gap > 1)
                 {
-                    Swap(ref array[i], ref array[i + currentStep]);
+                    gap = GetNextGap(gap);
+                }
+
+                swapped = false;
+
+                for (int i = 0; i + gap < n; i++)
+                {
+                    if (array[i] > array[i + gap])
+                    {
+                        Swap(ref array[i], ref array[i + gap]);
+                        swapped = true;
+                    }
                 }
             }
-
-            currentStep = GetNextStep(currentStep);
         }
 
-        for (var i = 1; i < arrayLength; i++)
+        private int GetNextGap(int gap)
         {
-            var swapFlag = false;
-            for (var j = 0; j < arrayLength - i; j++)
-            {
-                if (array[j] > array[j + 1])
-                {
-                    Swap(ref array[j], ref array[j + 1]);
-                    swapFlag = true;
-                }
-            }
-
-            if (!swapFlag)
-            {
-                break;
-            }
+            gap = gap * 10 / 13;
+            return gap < 1 ? 1 : gap;
         }
 
-        return array;
-    }
-
-    static int[] GetRandomArray(int length, int minValue, int maxValue)
-    {
-        var r = new Random();
-        var outputArray = new int[length];
-        for (var i = 0; i < outputArray.Length; i++)
+        private void Swap(ref int a, ref int b)
         {
-            outputArray[i] = r.Next(minValue, maxValue);
+            (a, b) = (b, a);
         }
-
-        return outputArray;
-    }
-
-    static void Main(string[] args)
-    {
-        int lenght = int.Parse(Console.ReadLine());
-        int min = int.Parse(Console.ReadLine());
-        int max = int.Parse(Console.ReadLine());
-        var arr = GetRandomArray(lenght, min, max);
-        Console.WriteLine("Входные данные: {0}", string.Join(", ", arr));
-        Console.WriteLine("Отсортированный массив: {0}", string.Join(", ", CombSort(arr)));
-        Console.ReadLine();
     }
 }

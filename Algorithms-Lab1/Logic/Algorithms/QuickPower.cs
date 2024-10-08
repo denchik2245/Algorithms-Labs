@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Logic.Algorithms
+﻿namespace Logic.Algorithms
 {
     public class QuickPower : IPowerRaiser
     {
@@ -14,7 +8,7 @@ namespace Logic.Algorithms
 
             for (int i = 0; i < array.Length; i++)
             {
-                int steps = 0;  // Явно объявляем переменную steps
+                int steps = 0;
                 array[i] = CalculatePower(array[i], power, ref steps);
             }
         }
@@ -26,7 +20,7 @@ namespace Logic.Algorithms
 
             while (power > 0)
             {
-                steps++; // Увеличиваем шаг
+                steps++;
 
                 if ((power % 2) == 1)
                 {
