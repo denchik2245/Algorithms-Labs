@@ -1,6 +1,4 @@
-using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using LiveCharts;
@@ -17,6 +15,7 @@ namespace WpfApp
 {
     public partial class MainWindow : System.Windows.Window
     {
+        //Инициализируем все элементы интерфейса
         public MainWindow()
         {
             InitializeComponent();
@@ -24,8 +23,8 @@ namespace WpfApp
             AlgorithmTypeComboBox.SelectedIndex = 0;
             AlgorithmComboBox.SelectedIndex = 0;
         }
-
-        // Настройка графика
+        
+        //Настраиваем оси и параметры графика
         private void ConfigureChart()
         {
             MyChart.AxisX.Clear();
@@ -46,8 +45,8 @@ namespace WpfApp
             MyChart.Zoom = ZoomingOptions.Xy;
             MyChart.LegendLocation = LegendLocation.None;
         }
-
-        // Обработчик изменения типа алгоритма
+        
+        //Обновляем список доступных алгоритмов в зависимости от выбранного типа
         private void AlgorithmTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (AlgorithmTypeComboBox.SelectedItem is ComboBoxItem selectedItem)
@@ -55,7 +54,7 @@ namespace WpfApp
                 AlgorithmComboBox.Items.Clear();
                 var algorithms = selectedItem.Content.ToString() switch
                 {
-                    "Сортировка" => new[] { "Сортировка пузырьком", "Сортировка обменом", "Блинная сортировка", "Быстрая сортировка", "Гибридная сортировка", "Сортировка Шелла" },
+                    "Сортировка" => new[] { "Сортировка пузырьком", "Сортировка обменом", "Блинная сортировка", "Быстрая сортировка", "Гибридная сортировка", "Сортировка Шелла", "Сортировка расчёской" },
                     "Математические операции" => new[] { "Постоянная функция", "Умножение элементов", "Сумма элементов" },
                     "Матричные операции" => new[] { "Умножение матриц" },
                     "Возведение в степень" => new[] { "Простое возведение", "Рекурсивное возведение", "Быстрое возведение", "Классическое быстрое возведение" },
@@ -68,28 +67,34 @@ namespace WpfApp
                     AlgorithmComboBox.Items.Add(algorithm);
                 }
                 
-                // Изменение названий полей ввода для алгоритмов возведения в степень
+                if (AlgorithmComboBox.Items.Count > 0)
+                {
+                    AlgorithmComboBox.SelectedIndex = 0;
+                }
+                
                 if (selectedItem.Content.ToString() == "Возведение в степень")
                 {
                     RunsTextBlock.Text = "Максимальная степень";
                     StepIncrementTextBlock.Text = "Шаг увеличения степени";
-
-                    // Скрываем поле "Основание степени"
+                    
                     MaxElementsTextBlock.Visibility = Visibility.Collapsed;
                     MaxElementsTextBox.Visibility = Visibility.Collapsed;
+                    
+                    RunsTextBox.Text = "100";
+                    StepIncrementTextBox.Text = "1";
                 }
                 else
                 {
                     RunsTextBlock.Text = "Кол-во запусков";
                     StepIncrementTextBlock.Text = "Шаг увеличения данных";
-                    
+
                     MaxElementsTextBlock.Visibility = Visibility.Visible;
                     MaxElementsTextBox.Visibility = Visibility.Visible;
                 }
             }
         }
-
-        // Обработчик кнопки расчета
+        
+        //Обработчик нажатия кнопки
         private void ButtonСalculation_Click(object sender, RoutedEventArgs e)
         {
             if (AlgorithmComboBox.SelectedItem == null ||
@@ -138,7 +143,6 @@ namespace WpfApp
             }
             else if (selectedAlgorithmType == "Возведение в степень")
             {
-                // Генерация степеней от 1 до maxExponent с шагом stepIncrement
                 if (!int.TryParse(RunsTextBox.Text, out int maxExponent) || maxExponent <= 0)
                 {
                     MessageBox.Show("Пожалуйста, введите корректные данные.");
@@ -167,7 +171,6 @@ namespace WpfApp
             }
             else
             {
-                // Для остальных алгоритмов (сортировка и т.д.)
                 if (!int.TryParse(MaxElementsTextBox.Text, out int maxElements) || maxElements <= 0)
                 {
                     MessageBox.Show("Пожалуйста, введите корректные данные.");
@@ -251,12 +254,13 @@ namespace WpfApp
                 "Сортировка обменом" => array => new ExchangeSort().Sort(array),
                 "Блинная сортировка" => array => new PancakeSort().Sort(array),
                 "Гибридная сортировка" => array => new TimSort().Sort(array),
+                "Сортировка Шелла" => array => new ShellSort().Sort(array),
+                "Сортировка расчёской" => array => new CombSort().Sort(array),
                 "Постоянная функция" => array => new ConstantFunction().Calculate(array),
                 "Умножение элементов" => array => new MultiplicationOfElements().Calculate(array),
                 "Сумма элементов" => array => new SumOfElements().Calculate(array),
                 "Прямое вычисление" => array => new NaivePolynomialEvaluation().Calculate(array, 1.0),
                 "Схема Горнера" => array => new HornerMethod().Calculate(array, 1.0),
-                "Сортировка Шелла" => array => new ShellSort().Sort(array),
                 _ => null
             };
         }
@@ -278,11 +282,9 @@ namespace WpfApp
             
             MyChart.Series.Clear();
             MyChart.Series.Add(lineSeries);
-
-            // Добавляем апроксимацию только для тех алгоритмов, где ось Y — время выполнения
+            
             if (yAxisTitle == "Время выполнения (мс)")
             {
-                // Построение апроксимации
                 ApproximationTitleTextBlock.Text = "Апроксимация";
 
                 var coefficients = Fit.Polynomial(xValues.Select(x => (double)x).ToArray(), yValues, 2);
@@ -302,11 +304,9 @@ namespace WpfApp
             }
             else
             {
-                // Если это возведение в степень, апроксимацию не строим
                 ApproximationTitleTextBlock.Text = string.Empty;
             }
-
-            // Настройка осей графика
+            
             MyChart.AxisX.Clear();
             MyChart.AxisX.Add(new Axis
             {

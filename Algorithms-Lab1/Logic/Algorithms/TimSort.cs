@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using MyVectorLibrary.Sorters;
+﻿using MyVectorLibrary.Sorters;
 
 namespace MyLibrary.Logic.Algorithms
 {
@@ -25,11 +23,9 @@ namespace MyLibrary.Logic.Algorithms
             {
                 int runStart = i;
                 int runLength = 1;
-
-                // Определяем тип серии (возрастающая или убывающая)
+                
                 if (i < n - 1 && array[i] <= array[i + 1])
                 {
-                    // Возрастающая серия
                     while (i < n - 1 && array[i] <= array[i + 1])
                     {
                         i++;
@@ -38,7 +34,6 @@ namespace MyLibrary.Logic.Algorithms
                 }
                 else
                 {
-                    // Убывающая серия
                     while (i < n - 1 && array[i] > array[i + 1])
                     {
                         i++;
@@ -46,23 +41,20 @@ namespace MyLibrary.Logic.Algorithms
                     }
                     Array.Reverse(array, runStart, runLength);
                 }
-
-                // Если серия меньше minRun, расширяем ее
+                
                 if (runLength < minRun)
                 {
                     int rightLimit = Math.Min(runStart + minRun - 1, n - 1);
                     InsertionSort(array, runStart, rightLimit);
                     runLength = rightLimit - runStart + 1;
                 }
-
-                // Создаем серию и помещаем ее в стек
+                
                 Run run = new Run { StartIndex = runStart, Length = runLength };
                 StackPush(array, runStack, run);
 
                 i = runStart + runLength;
             }
-
-            // Объединяем оставшиеся серии
+            
             while (runStack.Count > 1)
             {
                 Run A = runStack.Pop();
@@ -112,7 +104,7 @@ namespace MyLibrary.Logic.Algorithms
 
             int iLeft = 0, iRight = 0, iArr = left;
 
-            int gallopCount = 7; // Порог для входа в режим галопа
+            int gallopCount = 7;
             int countLeft = 0;
             int countRight = 0;
 
@@ -133,7 +125,6 @@ namespace MyLibrary.Logic.Algorithms
 
                 if (countLeft >= gallopCount)
                 {
-                    // Входим в режим галопа для левой серии
                     int newILeft = GallopRight(rightArray[iRight], leftArray, iLeft, len1 - iLeft);
                     int numCopied = newILeft - iLeft;
                     Array.Copy(leftArray, iLeft, array, iArr, numCopied);
@@ -143,7 +134,6 @@ namespace MyLibrary.Logic.Algorithms
                 }
                 else if (countRight >= gallopCount)
                 {
-                    // Входим в режим галопа для правой серии
                     int newIRight = GallopLeft(leftArray[iLeft], rightArray, iRight, len2 - iRight);
                     int numCopied = newIRight - iRight;
                     Array.Copy(rightArray, iRight, array, iArr, numCopied);
@@ -152,8 +142,7 @@ namespace MyLibrary.Logic.Algorithms
                     countRight = 0;
                 }
             }
-
-            // Копируем оставшиеся элементы
+            
             while (iLeft < len1)
             {
                 array[iArr++] = leftArray[iLeft++];
@@ -214,8 +203,7 @@ namespace MyLibrary.Logic.Algorithms
             {
                 Run A = stack.Pop();
                 Run B = stack.Pop();
-
-                // Проверяем инварианты
+                
                 if (stack.Count > 0)
                 {
                     Run C = stack.Peek();
