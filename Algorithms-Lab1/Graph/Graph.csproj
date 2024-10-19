@@ -7,11 +7,10 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
+        <PublishSingleFile>false</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     </PropertyGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Logic\Logic.csproj" />
-    </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="LiveCharts.Wpf" Version="0.9.7" />
@@ -23,4 +22,8 @@
       <None Remove="Resources\Fonts\Unbounded-SemiBold.ttf" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Logic\" />
+    </ItemGroup>
+    
 </Project>

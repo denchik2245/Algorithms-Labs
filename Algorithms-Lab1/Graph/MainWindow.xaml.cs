@@ -1,17 +1,15 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using Algorithms_Lab1.Logic.Algorithms;
+using Algorithms_Lab1.Logic.Matrix;
+using Algorithms_Lab1.Logic.Operation;
+using Algorithms_Lab1.Logic.Vector;
 using LiveCharts;
 using LiveCharts.Wpf;
-using Logic.Algorithms;
-using MyLibrary.Logic.Vector;
-using MyLibrary.Logic.Algorithms;
-using MyLibrary.Logic.Operation;
-using MyVectorLibrary.Sorters;
 using MathNet.Numerics;
-using MyLibrary.Logic.Matrix;
 
-namespace WpfApp
+namespace Algorithms_Lab1
 {
     public partial class MainWindow : System.Windows.Window
     {
@@ -31,7 +29,8 @@ namespace WpfApp
             MyChart.AxisX.Add(new Axis
             {
                 Title = "Размер массива",
-                LabelFormatter = value => value.ToString("F0")
+                LabelFormatter = value => value.ToString("F0"),
+                MinValue = 0
             });
 
             MyChart.AxisY.Clear();
@@ -97,6 +96,7 @@ namespace WpfApp
         //Обработчик нажатия кнопки
         private void ButtonСalculation_Click(object sender, RoutedEventArgs e)
         {
+            //Проверка введенных данных
             if (AlgorithmComboBox.SelectedItem == null ||
                 !int.TryParse(RunsTextBox.Text, out int runs) || runs <= 0 ||
                 !int.TryParse(StepIncrementTextBox.Text, out int stepIncrement) || stepIncrement <= 0)
@@ -105,9 +105,11 @@ namespace WpfApp
                 return;
             }
 
+            //Определение выбранного алгоритма
             string selectedAlgorithmType = (AlgorithmTypeComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
             string selectedAlgorithm = AlgorithmComboBox.SelectedItem.ToString();
 
+            //Выполнение матричных операций
             if (selectedAlgorithmType == "Матричные операции" && selectedAlgorithm == "Умножение матриц")
             {
                 if (!int.TryParse(MaxElementsTextBox.Text, out int maxSize) || maxSize <= 0)
@@ -141,6 +143,8 @@ namespace WpfApp
 
                 PlotGraph(sizes, times, "Время выполнения (мс)", "Размер матрицы (N x N)");
             }
+            
+            //Возведение в степень
             else if (selectedAlgorithmType == "Возведение в степень")
             {
                 if (!int.TryParse(RunsTextBox.Text, out int maxExponent) || maxExponent <= 0)
@@ -169,6 +173,8 @@ namespace WpfApp
 
                 PlotGraph(exponents, steps, "Количество шагов", "Степень");
             }
+            
+            //Другие алгоритмы
             else
             {
                 if (!int.TryParse(MaxElementsTextBox.Text, out int maxElements) || maxElements <= 0)
@@ -272,6 +278,16 @@ namespace WpfApp
             
             AlgorithmTitleTextBlock.Text = $"Алгоритм: {selectedAlgorithm}";
             
+            // Добавляем 0 в начало массива xValues, чтобы график всегда начинался с нуля
+            var updatedXValues = new int[xValues.Length + 1];
+            updatedXValues[0] = 0;
+            Array.Copy(xValues, 0, updatedXValues, 1, xValues.Length);
+
+            // Для yValues также добавляем 0 для согласованности
+            var updatedYValues = new double[yValues.Length + 1];
+            updatedYValues[0] = 0; // Соответствующее значение для оси Y в точке 0
+            Array.Copy(yValues, 0, updatedYValues, 1, yValues.Length);
+            
             LineSeries lineSeries = new LineSeries
             {
                 Title = selectedAlgorithm,
@@ -307,18 +323,22 @@ namespace WpfApp
                 ApproximationTitleTextBlock.Text = string.Empty;
             }
             
+            // Настройка оси X с началом от 0
             MyChart.AxisX.Clear();
             MyChart.AxisX.Add(new Axis
             {
                 Title = xAxisTitle,
-                Labels = xValues.Select(x => x.ToString()).ToArray()
+                Labels = updatedXValues.Select(x => x.ToString()).ToArray(),
+                MinValue = 0 // Устанавливаем минимальное значение на оси X
             });
 
+            // Настройка оси Y с началом от 0
             MyChart.AxisY.Clear();
             MyChart.AxisY.Add(new Axis
             {
                 Title = yAxisTitle,
-                LabelFormatter = value => value.ToString("F5")
+                LabelFormatter = value => value.ToString("F5"),
+                MinValue = 0 // Устанавливаем минимальное значение на оси Y
             });
             
             MyChart.Zoom = ZoomingOptions.Xy;
